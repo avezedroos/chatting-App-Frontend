@@ -4,7 +4,7 @@ import { api, setAuthToken } from "../services/api";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://chatting-app-backend-ofme.onrender.com";
 
 const ChatBox = ({ auth, otherUser }) => {
   // auth: { token, username, avatar }
