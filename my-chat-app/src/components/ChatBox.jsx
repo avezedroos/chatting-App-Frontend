@@ -23,7 +23,9 @@ const ChatBox = ({ auth, otherUser }) => {
 
     s.on("connect_error", (err) => {
       console.error("Socket connect error", err.message);
-      if (err && err.message) alert("Socket auth failed: " + err.message);
+      if (err && err.message)
+        // alert("Socket auth failed: " + err.message);
+      console.log("Socket auth failed: " + err.message);
     });
 
     s.on("receive-message", (msg) => {
