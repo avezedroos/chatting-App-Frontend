@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://chatting-app-backend-ofme.onrender.com/api";
 
 export const api = axios.create({
   baseURL: API_BASE,
