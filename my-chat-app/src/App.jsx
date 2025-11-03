@@ -37,7 +37,7 @@ const App = () => {
       console.log("Current user:", me);
       // simple rule: if username is UserA -> otherUser=UserB, vice versa
       if (!otherUser) {
-        const other = me.toLowerCase().includes("avez") ? "arhaan" : (me.toLowerCase().includes("arhaan") ? "Avez" : "arhaan");
+        const other = me.toLowerCase().includes("avez") ? "arhaan" : (me.toLowerCase().includes("arhaan") ? "avez" : "arhaan");
         setOtherUser(other);
       }
     }
