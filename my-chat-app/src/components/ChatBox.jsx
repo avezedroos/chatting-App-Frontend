@@ -73,8 +73,6 @@ const ChatBox = ({ auth, otherUser }) => {
     });
 
     s.on("messages-read", ({ sender, receiver }) => {
-      // mark messages in UI as read
-      setMessages(prev => prev.map(m => (m.sender === sender && m.receiver === receiver ? { ...m, read: true } : m)));
       console.log("messages-read event", sender, receiver);
       setMessages((prev) =>
         prev.map((m) => {
