@@ -11,10 +11,10 @@ button { cursor:pointer; }
 .chat-area { flex:1; display:flex; flex-direction:column; height:60vh; }
 .message-list { flex:1; overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; }
 .message { max-width:70%; padding:10px; border-radius:8px; word-break:break-word; }
-.sent { align-self:flex-end; background:#dcf8c6 }
-.received { align-self:flex-start; background:#fff; border:1px solid #eee }
+.sent { align-self:flex-end; background:#d5b1e9 }
+.received { align-self:flex-start; background:#d5b1e9; border:1px solid #eee }
 .meta { font-size:0.75rem; color:#666; margin-top:6px; display:flex; gap:8px; align-items:center; }
-.input-row { display:flex; padding:10px; border-top:1px solid #eee; gap:10px; }
+.input-row { display:flex; padding:10px; gap:10px; }
 input[type="text"] { flex:1; padding:10px; border-radius:6px; border:1px solid #ccc; }
 .status { font-size:0.85rem; color:#2b7a2b; }
 .typing { font-size:0.85rem; color:#666; }

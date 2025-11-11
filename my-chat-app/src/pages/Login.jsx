@@ -24,10 +24,12 @@ const Login = ({ onAuth }) => {
     try {
       const endpoint = isLogin ? "login" : "register";
       const res = await api.post(`/auth/${endpoint}`, form);
-      const { token, username, avatar } = res.data;
+      const { token, userdata } = res.data;
+      const { username } = userdata;
+      // console.log("connections:", connections);
       localStorage.setItem("token", token);
       setAuthToken(token);
-      onAuth({ token, username, avatar });
+      onAuth({ token, username, userdata });
     } catch (err) {
       alert(err.response?.data?.error || "Authentication error");
       console.error(err);

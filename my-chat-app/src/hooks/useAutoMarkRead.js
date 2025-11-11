@@ -8,8 +8,8 @@ const useAutoMarkRead = ({
   otherUser,
   auth,
 }) => {
-  const pendingMarkRef = useRef(false);     // tracks if a mark-read is waiting
-  const markTimeoutRef = useRef(null);      // for batching multiple updates
+  const pendingReadRef = useRef(false);     // tracks if a mark-read is pending
+  const markTimeoutRef = useRef(null);      // for batching updates
 
   useEffect(() => {
     // Always scroll to bottom when messages update
@@ -17,43 +17,61 @@ const useAutoMarkRead = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
 
-    // Check for unread messages
-    const hasUnread = messages.some(
-      (m) => m.sender === otherUser && m.receiver === auth.username && !m.read
+    // Get all received messages for this chat
+    const receivedMessages = messages.filter(
+      (m) => m.sender === otherUser && m.receiver === auth.username
     );
 
-    // Helper to emit mark-read once (batched)
+    // Filter messages that are not yet read
+    const unreadMessages = receivedMessages.filter(
+      (m) => m.status !== "read"
+    );
+
+    // Filter messages that are sent but not yet delivered
+    const undeliveredMessages = receivedMessages.filter(
+      (m) => m.status === "sent"
+    );
+
+    // Emit helper for mark-read
     const emitMarkRead = () => {
       if (!socketRef?.current) return;
-      console.log("✅ Emitting mark-read event...");
+      console.log("Emitting mark-read for", otherUser, "to", auth.username);
       socketRef.current.emit("mark-read", {
         sender: otherUser,
         receiver: auth.username,
       });
-      pendingMarkRef.current = false;
+      pendingReadRef.current = false;
     };
 
-    // If screen visible and there are unread messages
-    if (isScreenVisible && hasUnread) {
-      // Batch using timeout — prevents multiple emits if many messages arrive fast
+    // Emit helper for mark-delivered
+    const emitMarkDelivered = () => {
+      if (!socketRef?.current) return;
+      socketRef.current.emit("message-received", {
+        sender: otherUser,
+        receiver: auth.username,
+      });
+    };
+
+    // 🌞 CASE 1: Screen visible → mark all unread messages as "read"
+    if (isScreenVisible && unreadMessages.length > 0) {
       if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
       markTimeoutRef.current = setTimeout(emitMarkRead, 250);
     }
 
-    // If screen hidden but unread exist → mark as pending
-    else if (!isScreenVisible && hasUnread) {
-      pendingMarkRef.current = true;
-      console.log("🕒 Mark-read pending until screen visible again");
+    // 🌙 CASE 2: Screen hidden → mark "sent" messages as "delivered"
+    else if (!isScreenVisible && undeliveredMessages.length > 0) {
+      if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
+      markTimeoutRef.current = setTimeout(emitMarkDelivered, 400);
+      pendingReadRef.current = true;
     }
 
-    // If screen becomes visible again after being hidden
-    else if (isScreenVisible && pendingMarkRef.current && socketRef?.current) {
-      console.log("🔁 Screen visible again — processing pending mark-read");
+    // 🌅 CASE 3: Screen becomes visible again → complete pending read
+    else if (isScreenVisible && pendingReadRef.current && socketRef?.current) {
       if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
       markTimeoutRef.current = setTimeout(emitMarkRead, 150);
     }
 
-    // Cleanup timeout on unmount or dependency change
+    // 🧹 Cleanup timeout on unmount or dependency change
     return () => {
       if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
     };

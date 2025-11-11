@@ -52,23 +52,38 @@
   flex-direction: column;
 }
 
+ /* Individual message styles (this is use in messageList.jsx file ) */
+
 .message {
   max-width: 70%;
-  margin-bottom: 10px;
   padding: 10px;
   border-radius: 8px;
   word-wrap: break-word;
 }
 
+
+.message-font-color {
+  color: #610266;
+  font-weight:bold;
+}
+
 .sent {
   align-self: flex-end;
-  background: #d1e7ff;
+  background: #d5b1e9;
 }
 
 .received {
   align-self: flex-start;
-  background: #f1f0f0;
+  background: #d5b1e9;
+  border:1px solid #eee 
 }
+
+/* .meta { font-size:0.75rem; color:#666; margin-top:6px; display:flex; gap:8px; align-items:center; } */
+/* .sent { align-self:flex-end; background:#d5b1e9 }
+.received { align-self:flex-start; background:#d5b1e9; border:1px solid #eee } */
+
+/* ----end here--- */
+
 
 .sender {
   display: block;
@@ -77,6 +92,8 @@
   color: #555;
 }
 
+
+/* dont no where this is use  */
 .message-input {
   display: flex;
   padding: 10px;
@@ -100,7 +117,7 @@
   cursor: pointer;
 }
 
-.message-meta {
+/* .message-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -110,7 +127,7 @@
 }
 
 .message.sent {
-  background-color: #dcf8c6;
+  background-color: #d5b1e9;
   align-self: flex-end;
   border-radius: 10px 10px 0 10px;
 }
@@ -119,11 +136,11 @@
   background-color: #fff;
   align-self: flex-start;
   border-radius: 10px 10px 10px 0;
-}
+} */
 
-.message {
+/* .message {
   padding: 8px 12px;
   margin: 6px 0;
   max-width: 70%;
   word-wrap: break-word;
-}
+} */
