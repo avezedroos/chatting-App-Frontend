@@ -7,7 +7,7 @@ import MessageInput from "../components/MessageInput";
 import usePageVisibility from "../hooks/usePageVisibility";
 import useAutoMarkRead from "../hooks/useAutoMarkRead";
 import { timeAgo } from "../../../utility/Mini-Function";
-import "../styles/chatbox.css";
+import "../styles/Chatbox.css";
 
 const ChatBox = ({ auth = { username: "", token: "" }, otherUser, onClose }) => {
   const scrollRef = useRef(null);
