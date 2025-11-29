@@ -9,9 +9,12 @@ import {
   FaFacebookMessenger,
   FaTwitter,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
-const InviteFriend = ({ userdata, onClose }) => {
-  const [inviteCode, setInviteCode] = useState("");
+const InviteFriend = ({ onClose }) => {
+  // const [inviteCode, setInviteCode] = useState("");
+  const inviteCode = useSelector((state) => state.user.invitecode);
+  // console.log("InviteFriend inviteCode:", inviteCode);
   const [inviteLink, setInviteLink] = useState("");
   const [friendCode, setFriendCode] = useState("");
   const [message, setMessage] = useState("");
@@ -19,10 +22,10 @@ const InviteFriend = ({ userdata, onClose }) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const code = userdata.inviteCode || "default-code";
-    setInviteCode(code);
-    setInviteLink(`${window.location.origin}/invite/${code}`);
-  }, [userdata]);
+  if (inviteCode) {
+    setInviteLink(`${window.location.origin}/invite/${inviteCode}`);
+  }
+}, [inviteCode]);
 
   // Copy invite code
   const handleCopy = () => {
@@ -101,8 +104,9 @@ const InviteFriend = ({ userdata, onClose }) => {
                   {inviteCode}
                 </span>
                 <button
-                  className="btn btn-outline-primary btn-sm"
+                  className="btn btn-sm rounded-4 px-3"
                   onClick={handleCopy}
+                  style={{color:"var(--primary-text-color)"}}
                 >
                   <FaCopy /> Copy
                 </button>
@@ -128,8 +132,9 @@ const InviteFriend = ({ userdata, onClose }) => {
 
               <div className="mt-2 d-flex justify-content-center gap-2 flex-wrap">
                 <button
-                  className="btn btn-sm btn-gradient text-white"
+                  className="btn btn-sm rounded-4 px-3"
                   onClick={handleShare}
+                  style={{color:"var(--primary-text-color)"}}
                 >
                   <FaShareAlt /> Share
                 </button>
@@ -181,9 +186,10 @@ const InviteFriend = ({ userdata, onClose }) => {
 
             <div className="d-grid">
               <button
-                className="btn btn-gradient text-white fw-semibold"
+                className="btn fw-semibold rounded-md-3 "
                 onClick={handleSendRequest}
                 disabled={loading}
+                style={{color:"var(--primary-text-color)"}}
               >
                 {loading ? (
                   <span

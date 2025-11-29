@@ -1,63 +1,58 @@
-import React, { use, useEffect, useState } from "react";
-import Login from "./pages/Login";
-import { setAuthToken } from "./services/api";
-import Home from "./pages/Home";
+import React, {useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, logoutUser } from "./redux/features/userSlice";
+import { verifyAuthToken } from "./services/authService";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Home from "./pages/Home";
 import ManageRequests from "./pages/ManageRequests";
+import { setConnections } from "./redux/features/connectionsSlice";
+import NotFound from "./pages/NotFound";
+import { detectAndSaveInviteToken } from "./utils/inviteHelper";
 
 const App = () => {
-  const [auth, setAuth] = useState(null);
-  const [otherUser, setOtherUser] = useState(null);
+  const dispatch = useDispatch();
+   const { isAuthenticated } = useSelector((state) => state.user);
+    
 
-  // this is 1st useeffect function to restore auth from localStorage
-  useEffect(() => {
-    // restore token if present
-    console.log("Restoring auth from localStorage if present");
-    const token = localStorage.getItem("token");
-    if (token && !auth) {
-      // console.log("Found token in localStorage, restoring auth", token);
-      // best-effort decode username (we stored during login response)
-      // but we didn't store username in localStorage to keep it simple. If you want persistence, store username too.
-      setAuth({ token, username: null });
-      setAuthToken(token);
-      // NOTE: we rely on the Login response to set username; for persistence you can also store username in localStorage
-    }
-  }, []);
+  // this is 1st useeffect function to restore auth from sessionStorage
+    useEffect(() => {
+      detectAndSaveInviteToken(); // Save invite token from URL if present
+    const restoreAuth = async () => {
+      const result = await verifyAuthToken();
 
-  const handleAuth = (data) => {
-    // data: { token, username, userdata }
-    setAuth(data);
-    // store username for persistence
-    localStorage.setItem("username", data.username);
-  };
+      if (result.valid) {
+        // console.log("result",result.userdata)
+        dispatch(setUser({isAuthenticated:true, userdata: result.userdata }));
+        dispatch(setConnections(result.userdata.connections || []));
+        // dispatch ()
+      } else {
+        dispatch(logoutUser());
+      }
+    };
 
-  if (!auth || !auth.username) {
+    restoreAuth();
+  }, [dispatch]);
+
+  if (!isAuthenticated) {
     return (
       <div className="app-container">
-        <Login onAuth={handleAuth} />
+        <Login />
       </div>
     );
   }
-
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              username={auth.username}
-              connections={auth.userdata ? auth.userdata.connections : []}
-              token={auth.token}
-              userdata={auth.userdata}
-            />
-          }
-        />
-        <Route path="/requests" element={<ManageRequests username={auth.username}  />}/>
+        <Route path="/" element={ <Home/> }/>
+        <Route path="/requests" element={<ManageRequests/>}/>
         {/* You can add more routes here */}
+
+         {/* 404 Page */}
+        <Route path="*" element={<NotFound />} />
       </Routes> 
     </Router>
-    // <Home username={auth.username} connections={auth.userdata.connections} token={auth.token} userdata={auth.userdata}/>
   );
 };
 

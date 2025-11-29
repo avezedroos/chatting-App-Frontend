@@ -1,0 +1,46 @@
+:root {
+  /* ----- Base Colors ----- */
+  /* --primary-text-color: #111827;  */
+  --primary-text-color: #fff; 
+  --secondary-text-color: #6B7280; 
+  --border-color: #d9d9d9;
+
+  /* Backgrounds */
+  --primary-background-color: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+  --surface-color: #ffffffcc; /* glass + blur */
+  --card-color: #ffffff80;
+
+  /* ----- Brand Colors ----- */
+  --primary-color: #6C63FF;        /* Vibrant modern indigo */
+  --primary-color-light: #A683FF;  /* Softer pastel */
+  --primary-color-dark: #4b45c7;
+
+  /* ----- Gradient Button ----- */
+  --btn-gradient-primary: linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%);;
+  --btn-gradient-01: linear-gradient(135deg, #4facfe 0%, #6C63FF 50%, #F5576C 100%); /* Blue → Purple → Pink (Premium UI) */
+  --btn-gradient-02: linear-gradient(135deg, #A1C4FD 0%, #C2E9FB 100%); /* Pastel Soft Gradient (Calm, AI-inspired) */
+  --btn-gradient-03: linear-gradient(135deg, #0ff1ce 0%, #7b2ff7 100%); /* Cyber Neon (Future UI) */
+  --btn-gradient-04: linear-gradient(135deg, #6C63FF 0%, #A683FF 100%);
+
+
+  --btn-gradient-hover: linear-gradient(135deg, #A683FF 0%, #6C63FF 100%);
+
+  /* ----- Neumorphism (Light Mode) ----- */
+  --neu-light: #ffffff;
+  --neu-shadow-light: rgba(0, 0, 0, 0.05);
+  --neu-shadow-dark: rgba(0, 0, 0, 0.15);
+
+  /* ----- Neumorphism (Dark Mode) ----- */
+  --neu-dark: #1E1E2A;
+  --neu-dark-shadow-light: rgba(255, 255, 255, 0.04);
+  --neu-dark-shadow-dark: rgba(0, 0, 0, 0.7);
+}
+
+
+.darkTheme-01 {
+    --background-color: linear-gradient(180deg, #1a1022 0%, #22122b 100%);
+    --primary-text-color: #e0e0e0;
+    --primary-color: #bb86fc;
+    --secondary-color: #03dac6;
+    --border-color: #333333;
+}

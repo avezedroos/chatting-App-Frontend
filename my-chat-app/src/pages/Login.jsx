@@ -1,35 +1,58 @@
 import React, { useState } from "react";
 import { api, setAuthToken } from "../services/api";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/features/userSlice";
+import { setConnections } from "../redux/features/connectionsSlice";
 
-const Login = ({ onAuth }) => {
+const Login = () => {
   const [form, setForm] = useState({ username: "", password: "" });
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
-  // 🔤 Handle username input with restrictions
+  const inviteToken = sessionStorage.getItem("inviteToken"); // pulled once
+
+  // Username validation
   const handleUsernameChange = (e) => {
-    let value = e.target.value.toLowerCase(); // Convert to lowercase
-    value = value.replace(/[^a-z]/g, ""); // Remove non-letter characters
-    value = value.slice(0, 15); // Limit to 15 characters
-    setForm({ ...form, username: value });
+    let value = e.target.value.toLowerCase().replace(/[^a-z]/g, "").slice(0, 15);
+    setForm((prev) => ({ ...prev, username: value }));
   };
 
   const handlePasswordChange = (e) => {
-    setForm({ ...form, password: e.target.value });
+    setForm((prev) => ({ ...prev, password: e.target.value }));
   };
 
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const endpoint = isLogin ? "login" : "register";
-      const res = await api.post(`/auth/${endpoint}`, form);
+
+      // Build payload clean
+      const payload = {
+        ...form,
+        ...( !isLogin && inviteToken ? { inviteToken } : {} )
+      };
+
+      const res = await api.post(`/auth/${endpoint}`, payload);
+
+      // Data from server
       const { token, userdata } = res.data;
-      const { username } = userdata;
-      // console.log("connections:", connections);
-      localStorage.setItem("token", token);
+
+      // Save auth token
+      sessionStorage.setItem("token", token);
       setAuthToken(token);
-      onAuth({ token, username, userdata });
+
+      // Redux
+      dispatch(setUser({ isAuthenticated: true, userdata }));
+      dispatch(setConnections(userdata.connections || []));
+
+      // Clear invite token AFTER successful registration
+      if (!isLogin && inviteToken) {
+        sessionStorage.removeItem("inviteToken");
+      }
+
     } catch (err) {
       alert(err.response?.data?.error || "Authentication error");
       console.error(err);
@@ -41,6 +64,7 @@ const Login = ({ onAuth }) => {
   return (
     <div className="login-box">
       <h3 style={{ textAlign: "center" }}>Welcome to Two-Person Chat</h3>
+
       <form onSubmit={submit}>
         <input
           className="mb-2"
@@ -49,6 +73,7 @@ const Login = ({ onAuth }) => {
           value={form.username}
           onChange={handleUsernameChange}
         />
+
         <input
           className="mb-2"
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
@@ -57,6 +82,7 @@ const Login = ({ onAuth }) => {
           value={form.password}
           onChange={handlePasswordChange}
         />
+
         <button
           style={{
             width: "100%",
@@ -72,6 +98,7 @@ const Login = ({ onAuth }) => {
           {loading ? "Please wait..." : isLogin ? "Login" : "Register"}
         </button>
       </form>
+
       <p style={{ textAlign: "center", marginTop: 10 }} className="small">
         <span
           style={{ cursor: "pointer", color: "#007bff" }}

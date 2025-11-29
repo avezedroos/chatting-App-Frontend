@@ -8,8 +8,10 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
+import { useSelector } from "react-redux";
 
-const ManageRequests = ({ username }) => {
+const ManageRequests = () => {
+  const {username} = useSelector((state) => state.user);
   const [activeTab, setActiveTab] = useState("received"); // "received" | "sent"
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("All"); // "All" | "Pending" | "Accepted" | "Rejected" | "Blocked"

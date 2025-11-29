@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import EmojiReactionModal from "../components/EmojiReactionModal";
+import useLongPress from "../hooks/useLongPress";
+import { useDispatch, useSelector } from "react-redux";
+import { selectMessagesByUser } from "../redux/features/messagesSelectors";
+import { addEmojiReaction } from "../redux/features/messagesSlice";
+import socketService from "../services/socketService";
+import MessageActionModal from "../components/MessageActionModal";
 
-// 🧠 Utility: Format timestamp into label ("Today", "Yesterday", or "DD/MM/YYYY")
+// 📌 Format date into "Today", "Yesterday", "DD/MM/YYYY"
 const formatDayLabel = (timestamp) => {
   const date = new Date(timestamp);
   const today = new Date();
@@ -20,125 +27,502 @@ const formatDayLabel = (timestamp) => {
 
   if (isToday) return "Today";
   if (isYesterday) return "Yesterday";
-  return date.toLocaleDateString("en-GB"); // 👈 shows as DD/MM/YYYY
+
+  return date.toLocaleDateString("en-GB");
 };
 
-const MessageList = ({ messages, currentUser }) => {
-  // Sort messages by time (just to be safe)
+const MessageList = ({ setReplyingTo }) => {
+  // console.log("MessageList is render")
+  const dispatch = useDispatch();
+
+  const currentUser = useSelector((state) => state.user.username);
+  const otherUser =
+    useSelector(
+      (state) =>
+        state.connections.selectedConnection?.username ||
+        state.connections.selectedConnection?.name
+    );
+
+  const messages = useSelector((state) =>selectMessagesByUser(state, otherUser));
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [selectionModeState, setSelectionModeState] = useState(false);
+  const [emojiPosition, setEmojiPosition] = useState(null);
+  const [direction, setDirection] = useState("left");
+  const [directionX, setDirectionX] = useState(null);
+  const [touchStartX,setTouchStartX] = useState(0)
+  // console.log("selectionModeState",selectionModeState)
+
+
+  const [swipeOffset, setSwipeOffset] = useState({}); // 🟣 New state for swipe animation
+
+  const messageRefs = useRef({});
+  const containerRef = useRef(null);
+  const docClickRef = useRef(null);
+
+
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
   );
 
+  // 🔄 Receive emoji updates
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    socket.on("reaction-updated", (payload) => {
+      console.log("reaction-updated",payload)
+      const { messageId, reactions, sender, receiver } = payload;
+
+      dispatch(
+        addEmojiReaction({
+          userID: sender,
+          user:receiver,
+          messageId,
+          reactions
+        })
+      );
+    });
+
+    return () => socket.off("reaction-updated");
+  }, [currentUser, dispatch]);
+
+ // ➡️ Swipe to reply
+// let touchStartX = 0;
+
+
+const handleTouchStart = (e, msg) => {
+  if (selectionModeState) return;  // ⛔ Stop in selection mode
+  if (!e.touches || e.touches.length === 0) return;
+
+  setDirectionX(e.currentTarget.dataset.direction)
+  setTouchStartX( e.touches[0].clientX)
+};
+
+const handleTouchMove = (e, msg) => {
+  if (selectionModeState) return;  // ⛔ Stop in selection mode
+  if (!e.touches || e.touches.length === 0) return;
+  
+
+  const id = msg._id || msg.tempId;
+  const diff = e.touches[0].clientX - touchStartX;
+
+  // =========================================
+  //  🧠 RULES FOR SWIPE DIRECTION
+  // =========================================
+  if (directionX === "left" && diff < 0) {
+    // ❌ Left bubble → user is swiping left → not allowed
+    return;
+  }
+
+  if (directionX === "right" && diff > 0) {
+    // ❌ Right bubble → user is swiping right → not allowed
+    return;
+  }
+
+  // =========================================
+  //  🧠 APPLY CORRECT SWIPE (towards center)
+  // =========================================
+  setSwipeOffset((prev) => ({
+    ...prev,
+    [id]: Math.min(Math.abs(diff), 90) * (diff < 0 ? -1 : 1), 
+    // LEFT bubble → positive swipe  
+    // RIGHT bubble → negative swipe  
+  }));
+};
+
+
+ const handleTouchEnd = (e, msg) => {
+  if (selectionModeState) return;   // ⛔ stop swipe
+
+  const id = msg._id || msg.tempId;
+
+  let endX = 0;
+  if (e.changedTouches && e.changedTouches.length > 0) {
+    endX = e.changedTouches[0].clientX;
+  }
+
+  const diff = endX - touchStartX;  // positive = right swipe, negative = left swipe
+
+  // =========================================
+  // 🧠 CHECK DIRECTION
+  // =========================================
+  if (directionX === "left") {
+    // Left bubble → must swipe RIGHT → diff >= threshold
+    if (diff >= 150) {
+      handleReply(msg);
+    }
+  } 
+  
+  else if (directionX === "right") {
+    // Right bubble → must swipe LEFT → diff <= -threshold
+    if (diff <= -150) {
+      handleReply(msg);
+    }
+  }
+
+  // =========================================
+  // 🎬 SNAP BACK — reset bubble position
+  // =========================================
+  setSwipeOffset((prev) => ({
+    ...prev,
+    [id]: 0,
+  }));
+};
+  // 🟡 Message action handler
+  const handleReply = (message) => {
+    console.log("handleREply is running ")
+    const id = message._id || message.tempId;
+
+    setReplyingTo({
+      id,
+      text: message.text,
+      sender: message.sender,
+    });
+
+    // Reset movement
+    setSwipeOffset((prev) => ({ ...prev, [id]: 0 }));
+
+    // focus input box if exists
+    const input = document.getElementById("chat-input-box");
+    if (input) input.focus();
+  };
+
+  // 🟣 Long Press
+  const handleLongPress = (pressedId) => {
+    setSelectedMessages([pressedId]);
+    setSelectionModeState(true);
+
+    const element = messageRefs.current[pressedId];
+    const parent = containerRef.current;
+
+    if (element && parent) {
+      const elRect = element.getBoundingClientRect();
+      const parentRect = parent.getBoundingClientRect();
+
+      setDirection(element.dataset.direction);
+
+      const top =
+        elRect.top - parentRect.top + parent.scrollTop - 50;
+
+      const left = elRect.left - parentRect.left + parent.scrollLeft;
+
+      setEmojiPosition({
+        top,
+        left: left - 20,
+      });
+    }
+  };
+
+  const handleClick = (clickedId) => {
+    console.log("handleClick is running");
+    if (selectionModeState) {
+      if (selectedMessages.includes(clickedId)) {
+        const updated = selectedMessages.filter((id) => id !== clickedId);
+        setSelectedMessages(updated);
+        if (updated.length === 0) setSelectionModeState(false);
+      } else {
+        setSelectedMessages([...selectedMessages, clickedId]);
+        setEmojiPosition(null);
+      }
+    }
+  };
+
+  const { eventHandlers } = useLongPress(handleLongPress, {
+    delay: 600,
+    onClick: handleClick,
+    selectionMode: selectionModeState,
+  });
+
+  // 🟡 Emoji selection handler
+  const handleEmojiSelect = (emoji) => {
+  if (selectedMessages.length !== 1) return;
+
+  const messageId = selectedMessages[0];
+
+  // Find the message
+  const message = messages.find((m) => m._id === messageId);
+  if (!message) return;
+
+  // Find if current user already reacted
+  const prevReaction = message.reactions?.find(
+    (r) => r.user === currentUser
+  );
+
+  // console.log("message.reactions",message.reactions,"currentUser",currentUser)
+  console.log("prevReaction",prevReaction)
+
+  // Prevent multiple emojis / invalid emoji
+  if (emoji && typeof emoji === "string" && [...emoji].length > 2) {
+    console.warn("❌ Multiple emojis not allowed");
+    return;
+  }
+
+  // ======================================================
+  // RULE 2 — If same emoji OR emoji=null → REMOVE reaction
+  // ======================================================
+  if (!emoji || (prevReaction && prevReaction.emoji === emoji)) {
+    dispatch(
+      addEmojiReaction({
+        userID:otherUser,
+        user: currentUser,
+        messageId,
+        emoji: null, // remove
+      })
+    );
+
+    socketService.emit("update-reaction", {
+      messageId,
+      user: currentUser,
+      emoji: null,
+      otherUser:otherUser
+    });
+
+    resetUI();
+    return;
+  }
+
+  // ======================================================
+  // RULE 4 — If different emoji → UPDATE reaction
+  // ======================================================
+  if (prevReaction && prevReaction.emoji !== emoji) {
+    dispatch(
+      addEmojiReaction({
+          userID:otherUser,
+        user: currentUser,
+        messageId,
+        emoji,
+      })
+    );
+
+    socketService.emit("update-reaction", {
+      messageId,
+      user: currentUser,
+      emoji,
+       otherUser:otherUser
+      
+    });
+
+    resetUI();
+    return;
+  }
+
+  // ======================================================
+  // RULE 5 — New reaction → ADD
+  // ======================================================
+  console.log("i am in 5th Rule maybe")
+  dispatch(
+    addEmojiReaction({
+        userID:otherUser,
+      user: currentUser,
+      messageId,
+      emoji,
+    })
+  );
+
+  socketService.emit("update-reaction", {
+    messageId,
+    user: currentUser,
+    emoji,
+     otherUser:otherUser
+  });
+
+  resetUI();
+};
+
+// Helper
+const resetUI = () => {
+  setSelectedMessages([]);
+  setSelectionModeState(false);
+  setEmojiPosition(null);
+};
+
+
+
+
+
+
+
   let lastDateLabel = null;
 
+  // ⭐ Unified handler so swipe does NOT cancel long press
+  let longPressTimer = null;
+
+  const unifiedTouchStart = (e, msg) => {
+     if (selectionModeState) return;   // ⛔ stop longPress + swipe conflict
+  const id = msg._id || msg.tempId;
+
+  longPressTimer = setTimeout(() => {
+    eventHandlers.onTouchStart?.({
+      ...e,
+      currentTarget: messageRefs.current[id], // FIXED
+    });
+  }, 70);
+
+  handleTouchStart(e, msg);
+};
+
+
+  const unifiedTouchMove = (e, msg) => {
+     if (selectionModeState) return;   // ⛔ stop swipe
+    clearTimeout(longPressTimer);
+    eventHandlers.onTouchMove?.(); // cancel long press
+    handleTouchMove(e, msg);
+  };
+
+  const unifiedTouchEnd = (e, msg) => {
+     if (selectionModeState) return;   // ⛔ stop swipe
+    clearTimeout(longPressTimer);
+    eventHandlers.onTouchEnd?.(e);
+
+    handleTouchEnd(e, msg);
+  };
+const is24hr = Intl.DateTimeFormat([], { hour: "numeric" })
+  .formatToParts(new Date())
+  .some(part => part.type === "dayPeriod") === false;
+
+const handleOutsideClick = () => {
+  console.log("handleOutsideClick is running");
+  document.removeEventListener("click", docClickRef.current); // <--- FIX
+  docClickRef.current = null;
+  setEmojiPosition(null); // closes modals
+};
+
+
+useEffect(() => {
+  console.log("useEffect for outside click is running")
+  if (!(selectedMessages.length === 1 && emojiPosition)) return;
+
+  docClickRef.current = (e) => {
+    console.log("i am calling handleOutsideClick")
+    handleOutsideClick();
+  };
+
+  document.addEventListener("click", docClickRef.current);
+
+  return () => {
+    console.log("cleanup for outside click is running")
+    document.removeEventListener("click", docClickRef.current);
+  };
+}, [selectedMessages.length, emojiPosition]);
+
+
+
   return (
-    <>
+    <div ref={containerRef} style={{ position: "relative", paddingBottom: "50px" }}>
       {sortedMessages.map((m) => {
+        const id = m._id || m.tempId;
         const isSent = m.sender === currentUser;
+
         const isDeletedForUser = m.deletedFor?.includes(currentUser);
         const isDeletedForEveryone = m.isDeletedForEveryone;
 
-        // 🧾 Determine visible text
         const displayText = isDeletedForEveryone
           ? "🗑️ Message deleted for everyone"
           : isDeletedForUser
-          ? "🗑️ You deleted this message"
-          : m.text;
+            ? "🗑️ You deleted this message"
+            : m.text;
 
-        // 🕓 Determine current message's day label
-        const currentLabel = formatDayLabel(m.timestamp);
+        const dateLabel = formatDayLabel(m.timestamp);
+        const showDateLabel = dateLabel !== lastDateLabel;
+        if (showDateLabel) lastDateLabel = dateLabel;
 
-        // 🟣 Render date separator only if new day starts
-        const showDateLabel = currentLabel !== lastDateLabel;
-        if (showDateLabel) lastDateLabel = currentLabel;
+        const isSelected = selectedMessages.includes(id);
 
-        // ✅ Status icon logic
-        const getStatusIcon = () => {
-          if (!isSent) return null;
-          const style = { fontSize: "1rem", marginLeft: "4px" };
-          switch (m.status) {
-            case "pending":
-              return (
-                <i
-                  className="bi bi-clock"
-                  style={{ ...style, color: "gray", fontSize: "0.9rem" }}
-                ></i>
-              );
-            case "sent":
-              return <span style={{ ...style, color: "gray" }}>✔</span>;
-            case "delivered":
-              return <span style={{ ...style, color: "gray" }}>✔✔</span>;
-            case "read":
-              return <span style={{ ...style, color: "#0d6efd" }}>✔✔</span>;
-            default:
-              return null;
-          }
+        const bubbleStyle = {
+          maxWidth: "70%",
+          borderRadius: "14px",
+          backgroundColor: isSelected
+            ? "#b583d0"
+            : isSent
+              ? "#d5b1e9"
+              : "#f3e1ff",
+          color: "#610266",
+          boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
         };
 
+        const animationClass = isSent ? "msg-animate-right" : "msg-animate-left";
+
+        
+
         return (
-          <React.Fragment key={m._id || m.tempId}>
-            {/* 🕒 Date Separator */}
+          <React.Fragment key={id}>
             {showDateLabel && (
-              <div
-                className="text-center my-3"
-                style={{
-                  color: "#ccc",
-                  fontSize: "0.85rem",
-                  fontWeight: "500",
-                  letterSpacing: "0.5px",
-                }}
-              >
+              <div className="text-center my-3" style={{ color: "#ccc" }}>
                 <span
                   style={{
                     background: "#2b2b2b",
                     padding: "4px 10px",
                     borderRadius: "12px",
+                    fontSize: "0.85rem",
                   }}
                 >
-                  {currentLabel}
+                  {dateLabel}
                 </span>
               </div>
             )}
 
-            {/* 💬 Message Bubble */}
             <div
-              className={`d-flex flex-column my-2 ${
-                isSent ? "align-items-end" : "align-items-start"
-              }`}
+              className={`d-flex flex-column ${isSent ? "align-items-end" : "align-items-start"
+                }`}
             >
+              {/* MESSAGE BUBBLE */}
               <div
-                className="p-2 rounded-3 shadow-sm"
+                {...eventHandlers}
+                onTouchStart={(e) => unifiedTouchStart(e, m)}
+                onTouchMove={(e) => unifiedTouchMove(e, m)}
+                onTouchEnd={(e) => unifiedTouchEnd(e, m)}
+
+                ref={(el) => (messageRefs.current[id] = el)}
+                data-id={id}
+                data-direction={isSent ? "right" : "left"}
+                className={`py-2 px-3 my-2 fw-bold ${animationClass}`}
                 style={{
-                  maxWidth: "70%",
-                  wordWrap: "break-word",
-                  backgroundColor: "#d5b1e9",
-                  border: isSent ? "none" : "1px solid #eee",
-                  color: "#610266",
-                  fontWeight: "bold",
+                  ...bubbleStyle,
+                  transform: `translateX(${swipeOffset[id] || 0}px) scale(${1 - Math.min((swipeOffset[id] || 0) / 1000, 0.03)})`,
+                  opacity: 1 - Math.min((swipeOffset[id] || 0) / 300, 0.3),
+                  transition: swipeOffset[id] === 0 ? "all 0.25s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+                  position: "relative",
                 }}
               >
-                <div>{displayText}</div>
+
 
                 {m.replyTo && (
                   <div
-                    className="border-start ps-2 mt-1"
+                    className="border-start ps-1 my-1"
                     style={{ fontSize: "0.8rem", color: "#555" }}
                   >
-                    ↩️ Replied to: {m.replyTo.text || "previous message"}
+                    {m.replyTo.text || "previous message"}
                   </div>
                 )}
 
-                {m.reactions && m.reactions.length > 0 && (
+                {/* 🟣 Swipe Arrow (WhatsApp-style) */}
+                <div
+                  className="swipe-reply-arrow"
+                  style={{
+                    position: "absolute",
+                    left: "-28px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    fontSize: "18px",
+                    opacity: (swipeOffset[id] || 0) > 10 ? 1 : 0,
+                    transition: "opacity 0.2s",
+                  }}
+                >
+                  ↩
+                </div>
+
+                <div style={{ userSelect: "none" }}>{displayText}</div>
+
+                {m.reactions?.length > 0 && (
                   <div className="mt-1">
-                    {m.reactions.map((r, i) => (
-                      <span key={i} className="me-1">
+                    {m.reactions.map((r, idx) => (
+                      <span key={idx} className="me-1">
                         {r.emoji}
                       </span>
                     ))}
                   </div>
                 )}
 
-                {/* 🕒 Time + Status */}
                 <div
                   className="d-flex align-items-center gap-2 mt-1"
                   style={{ fontSize: "0.75rem", color: "#666" }}
@@ -147,17 +531,61 @@ const MessageList = ({ messages, currentUser }) => {
                     {new Date(m.timestamp).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
+                       hour12: is24hr
                     })}
                   </div>
-                  {getStatusIcon()}
-                  {m.isEdited && <div>(edited)</div>}
+
+                  {isSent && (
+                    <>
+                      {m.status === "pending" && (
+                        <i className="bi bi-clock" style={{ fontSize: "0.9rem", color: "gray" }}></i>
+                      )}
+                      {m.status === "sent" && <span style={{ color: "gray" }}>✔</span>}
+                      {m.status === "delivered" && <span style={{ color: "gray" }}>✔✔</span>}
+                      {m.status === "read" && <span style={{ color: "#0d6efd" }}>✔✔</span>}
+                    </>
+                  )}
+
+                  {m.isEdited && <span>(edited)</span>}
                 </div>
               </div>
             </div>
           </React.Fragment>
         );
       })}
-    </>
+
+    {selectedMessages.length === 1 && emojiPosition && (
+      
+  // <div
+  //   className="modal-overlay"
+  //   onClick={handleOutsideClick}
+  //   onTouchStart={handleOutsideClick}
+  //   style={{
+  //     position: "fixed",
+  //     inset: 0,
+  //     zIndex: 999,
+  //   }}
+  // >
+    // {/* Stop click from closing when clicking inside modal */}
+    // {/* <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute" }}> */}
+    <div onClick={(e) => e.stopPropagation()}>
+      <EmojiReactionModal
+        position={emojiPosition}
+        direction={direction}
+        onSelect={handleEmojiSelect}
+      />
+
+      <MessageActionModal
+        position={emojiPosition}
+        direction={direction}
+        onAction={(a) => handleAction(a)}
+      />
+      </div>
+    // {/* </div> */}
+  // {/* </div> */}
+)}
+
+    </div>
   );
 };
 

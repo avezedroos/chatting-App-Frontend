@@ -3,7 +3,11 @@ body { margin: 0; font-family: Arial, sans-serif; background:#f5f7fb; color:#222
 .app-container { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;}
 .login-box, .chat-wrapper { width:100%; max-width:820px; background:white; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.08); padding:20px; }
 .login-grid { display:flex; gap:10px; justify-content:center; }
-button { cursor:pointer; }
+button { cursor:pointer;
+     background: var(--btn-gradient-primary);
+    color: var(--primary-text-color);
+    }
+/* .button{pa} */
 .small { font-size:0.9rem; color:#666; }
 .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .chat-main { display:flex; gap:20px; }

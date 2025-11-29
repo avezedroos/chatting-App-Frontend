@@ -1,6 +1,6 @@
 // ChatBox.jsx
-import React, { useEffect, useRef, useState } from "react";
-import { api, setAuthToken } from "../services/api";
+import React, { use, useEffect, useRef, useState } from "react";
+import { api } from "../services/api";
 import socketService from "../services/socketService";
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
@@ -8,111 +8,109 @@ import usePageVisibility from "../hooks/usePageVisibility";
 import useAutoMarkRead from "../hooks/useAutoMarkRead";
 import { timeAgo } from "../../../utility/Mini-Function";
 import "../styles/Chatbox.css";
+import { useDispatch, useSelector } from "react-redux";
+import { addMessage, addTempMessage, replaceTempMessage, setMessagesForUser, updateStatusByUsers } from "../redux/features/messagesSlice";
+import { selectMessagesByUser } from "../redux/features/messagesSelectors";
 
-const ChatBox = ({ auth = { username: "", token: "" }, otherUser, onClose }) => {
+const ChatBox = ({ onClose }) => {
+
+  const dispatch = useDispatch();
+
+  // Refs
   const scrollRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const unsentQueueRef = useRef([]);
 
-  const [messages, setMessages] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const [typingState, setTypingState] = useState(null);
+  // Redux state
+  const { username } = useSelector((state) => state.user);
+  const otherUser = useSelector((state) => state.connections.selectedConnection?.username || state.connections.selectedConnection?.name);
+  const {onlineUsers} = useSelector((state) => state.chatMeta);
+  const CorelastSeenState  =  useSelector((state)=> state.connections.selectedConnection?.onlineStatus?.lastSeen )
+  const {typing} = useSelector((state) => state.chatMeta);
+
+  // States
+  // const [typingState, setTypingState] = useState(null);
   const [isScreenVisible, setIsScreenVisible] = useState(true);
   const [lastSeenState, setLastSeenState] = useState(null);
+const [replyingTo, setReplyingTo] = useState(null);
 
   usePageVisibility(setIsScreenVisible);
 
+  // const [lastSeenState, setLastSeenState] = useState("");
+
+useEffect(() => {
+  if (!CorelastSeenState) return;
+
+  // 1) Update immediately
+  setLastSeenState(timeAgo(CorelastSeenState));
+
+  // 2) Update every 1 minute
+  const interval = setInterval(() => {
+    setLastSeenState(timeAgo(CorelastSeenState));
+  }, 60000);
+
+  // 3) Cleanup interval on unmount or lastSeen change
+  return () => clearInterval(interval);
+
+}, [CorelastSeenState]);
+
+
   useEffect(() => {
-    if (!auth.token) return;
-    setAuthToken(auth.token);
+    const socket = socketService.getSocket();
+    if (!socket) return; // socket not ready yet
 
-    const socket = socketService.connect(auth.token);
-
-    // handle reconnect
+    // ---- reconnect logic ----
     socket.on("connect", () => {
       if (unsentQueueRef.current.length > 0) {
         unsentQueueRef.current.forEach((payload) => {
           socket.emit("send-message", payload, (ack) => {
             if (ack?.ok && ack.serverId) {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.tempId === payload.tempId
-                    ? { ...m, pending: false, delivered: true, _id: ack.serverId }
-                    : m
-                )
-              );
+              dispatch(replaceTempMessage({ userId: otherUser, tempId, newMessage: ack.data }));
             }
           });
         });
+
         unsentQueueRef.current = [];
       }
     });
 
-    // receive message
-    socket.on("receive-message", (msg) => {
-      console.log("Received message via socket:", msg);
-      // console.table(msg);
-      setMessages((prev) => [...prev, msg]);
-      // socket.emit("message-received", { messageId: msg._id, sender: msg.sender, receiver: msg.receiver })
+   
+
+    socket.on("messages-read", ({ receiver, messageIds }) => {
+      dispatch(updateStatusByUsers({ userId:receiver ,status: "read", messageIds }));
     });
 
-
-    // online status
-    socket.on("online-status", ({ username, online, onlineUserss, lastSeen }) => {
-      if (lastSeen) {
-        if (socketService.lastSeenInterval) clearInterval(socketService.lastSeenInterval);
-        setLastSeenState(timeAgo(lastSeen));
-        socketService.lastSeenInterval = setInterval(() => setLastSeenState(timeAgo(lastSeen)), 60000);
-      }
-
-      if (Array.isArray(onlineUserss)) {
-        setOnlineUsers(onlineUserss);
-      } else if (username) {
-        setOnlineUsers((prev) => {
-          const set = new Set(prev);
-          online ? set.add(username) : set.delete(username);
-          return Array.from(set);
-        });
-      }
+    socket.on("messages-delivered", ({ receiver ,messageIds}) => {
+      console.log("messages-delivered")
+      dispatch(updateStatusByUsers({ userId: receiver ,  status: "delivered", messageIds }));
     });
 
-    socket.on("typing", (data) => {
-      if (!data?.from) return;
-      setTypingState((prev) => (data.isTyping ? data.from : prev === data.from ? null : prev));
-    });
-
-    socket.on("messages-read", ({ sender, receiver }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          (m.sender === sender && m.receiver === receiver) ? { ...m, status: "read" } : m
-        )
-      );
-    });
-
-    socket.on("messages-delivered", ({ sender, receiver }) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          (m.sender === sender && m.receiver === receiver) ? { ...m, status: "delivered" } : m
-    )
-      );
-    });
-
+    // IMPORTANT: only remove listeners, don't disconnect socket!
     return () => {
-      socketService.disconnect();
+      socket.off("connect");
+      // socket.off("receive-message");
+      socket.off("typing");
+      // socket.off("online-status");
+      socket.off("messages-read");
+      socket.off("messages-delivered");
     };
-  }, [auth.token]);
+
+  }, [otherUser]);
+
 
   // fetch messages on user change
   useEffect(() => {
-    if (!auth.username || !otherUser) return;
+    if (!username || !otherUser) return;
     let cancelled = false;
 
     const fetchMessages = async () => {
       try {
-        const res = await api.get(`/messages/${auth.username}/${otherUser}`);
+        const res = await api.get(`/messages/${username}/${otherUser}`);
+        // console.log("Fetched messages:", res.data);
         if (cancelled) return;
         const fetched = res.data || [];
-        setMessages(fetched);
+
+        dispatch(setMessagesForUser({ userId: otherUser, messages: fetched }));
       } catch (err) {
         console.error("Fetch messages error", err);
       }
@@ -120,41 +118,35 @@ const ChatBox = ({ auth = { username: "", token: "" }, otherUser, onClose }) => 
 
     fetchMessages();
     return () => { cancelled = true; };
-  }, [auth.username, otherUser]);
+  }, [username, otherUser]);
 
   useAutoMarkRead({
-    messages,
-    socketRef: { current: socketService.getSocket() },
     scrollRef,
-    otherUser,
-    auth,
     isScreenVisible,
   });
 
-  const handleSend = (text) => {
+  const handleSend = (text,replyingTo) => {
     if (!text.trim()) return;
+    // console.log("replyingTo",replyingTo)
     const tempId = `t-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const payload = {
       tempId,
-      sender: auth.username,
+      sender: username,
       receiver: otherUser,
       text: text.trim(),
       timestamp: null,
       status: "pending",
+      replyTo: replyingTo?.id
     };
-    setMessages((prev) => [...prev, { ...payload, pending: true, delivered: false }]);
+    dispatch(addTempMessage({ userId: otherUser, message: { ...payload, pending: true, delivered: false } }));
 
     const socket = socketService.getSocket();
     if (socketService.isConnected()) {
       socketService.emit("send-message", payload, (ack) => {
         console.log("ACK received for sent message:", ack);
         if (ack?.status && ack.data?._id) {
-          console.log("ACK received for message:", ack);
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.tempId === tempId ? ack.data : m
-            )
-          );
+          // console.log("ACK received for message:", ack);
+          dispatch(replaceTempMessage({ userId: otherUser, tempId, newMessage: ack.data }));
         } else {
           unsentQueueRef.current.push(payload);
         }
@@ -167,26 +159,21 @@ const ChatBox = ({ auth = { username: "", token: "" }, otherUser, onClose }) => 
 
   const handleTyping = (isTyping) => {
     const socket = socketService.getSocket();
+    console.log("handleTyping is running")
     if (!socket) return;
-
     if (isTyping) {
-      socketService.emit("typing", { from: auth.username, to: otherUser, isTyping: true });
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = setTimeout(() => {
-        socketService.emit("typing", { from: auth.username, to: otherUser, isTyping: false });
-        typingTimeoutRef.current = null;
-      }, 1500);
-    } else {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      socketService.emit("typing", { from: auth.username, to: otherUser, isTyping: false });
+      socketService.emit("typing", { from: username, to: otherUser, isTyping: true });
     }
   };
 
+  
+
   const otherOnline = onlineUsers.includes(otherUser);
+  // console.log("otherUser" , otherUser, "Lastseen ", lastSeenState)
 
   return (
     <div className="W-chatbox">
-      
+
       {/* this is a header of chatbox */}
       <div className="W-chat-header">
         <div className="W-chat-header-left">
@@ -195,7 +182,7 @@ const ChatBox = ({ auth = { username: "", token: "" }, otherUser, onClose }) => 
           <div className="W-chat-meta">
             <div className="W-chat-name">{otherUser}</div>
             <div className="W-chat-sub">
-              {typingState === otherUser ? (
+              {typing.includes(otherUser)? (
                 <span className="W-typing">{otherUser} is typing…</span>
               ) : otherOnline ? (
                 <span className="W-online">Online</span>
@@ -207,16 +194,17 @@ const ChatBox = ({ auth = { username: "", token: "" }, otherUser, onClose }) => 
             </div>
           </div>
         </div>
-        <div className="W-chat-header-right">You: {auth.username}</div>
+        <div className="W-chat-header-right">You: {username}</div>
       </div>
 
-              {/* this is the main chat area */}
+      {/* this is the main chat area */}
       <div className="W-chat-main">
         <div ref={scrollRef} className="W-message-container">
-          <MessageList messages={messages} currentUser={auth.username} />
+          <MessageList setReplyingTo={setReplyingTo}/>
         </div>
         <div className="W-input-area">
-          <MessageInput onSend={handleSend} onTyping={handleTyping} />
+          <MessageInput onSend={handleSend} onTyping={handleTyping} replyingTo={replyingTo}
+  clearReply={() => setReplyingTo(null)} />
         </div>
       </div>
     </div>

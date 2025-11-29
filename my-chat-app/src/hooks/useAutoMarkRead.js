@@ -1,31 +1,43 @@
 import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectMessagesByUser } from "../redux/features/messagesSelectors";
+import socketService from "../services/socketService";
+import { updateStatusByUsers } from "../redux/features/messagesSlice";
+import { resetUnread } from "../redux/features/connectionsSlice";
 
 const useAutoMarkRead = ({
-  messages,
   isScreenVisible,
-  socketRef,
   scrollRef,
-  otherUser,
-  auth,
+ 
 }) => {
   const pendingReadRef = useRef(false);     // tracks if a mark-read is pending
   const markTimeoutRef = useRef(null);      // for batching updates
 
+  //redux States
+ const { username } = useSelector((state) => state.user);
+  const otherUser = useSelector((state) => state.connections.selectedConnection?.username || state.connections.selectedConnection?.name);
+  const messages = useSelector((state) => selectMessagesByUser(state, otherUser));
+ 
+const dispatch = useDispatch()
+  const socket = socketService.getSocket();
   useEffect(() => {
+// console.log("useAutoMarkRead is ruuning and useAutoMarkRead is ",isScreenVisible)
     // Always scroll to bottom when messages update
-    if (scrollRef?.current) {
+    if (socket) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
 
     // Get all received messages for this chat
     const receivedMessages = messages.filter(
-      (m) => m.sender === otherUser && m.receiver === auth.username
+      (m) => m.sender === otherUser && m.receiver === username
     );
 
     // Filter messages that are not yet read
     const unreadMessages = receivedMessages.filter(
       (m) => m.status !== "read"
     );
+
+    const messageIds = messages.map(m => m._id);
 
     // Filter messages that are sent but not yet delivered
     const undeliveredMessages = receivedMessages.filter(
@@ -34,22 +46,18 @@ const useAutoMarkRead = ({
 
     // Emit helper for mark-read
     const emitMarkRead = () => {
-      if (!socketRef?.current) return;
-      console.log("Emitting mark-read for", otherUser, "to", auth.username);
-      socketRef.current.emit("mark-read", {
+      if (!socket) return;
+      console.log("Emitting mark-read for", otherUser, "to", username);
+      console.log("Emitting mark-read for", otherUser, "to", username);
+      console.log("unreadMessages",unreadMessages)
+      socket.emit("mark-read", {
         sender: otherUser,
-        receiver: auth.username,
+        receiver: username,
+        messageIds:messageIds,
       });
+      dispatch(resetUnread(otherUser));
+      dispatch(updateStatusByUsers({userId:otherUser , status: "read", messageIds }));
       pendingReadRef.current = false;
-    };
-
-    // Emit helper for mark-delivered
-    const emitMarkDelivered = () => {
-      if (!socketRef?.current) return;
-      socketRef.current.emit("message-received", {
-        sender: otherUser,
-        receiver: auth.username,
-      });
     };
 
     // 🌞 CASE 1: Screen visible → mark all unread messages as "read"
@@ -59,14 +67,14 @@ const useAutoMarkRead = ({
     }
 
     // 🌙 CASE 2: Screen hidden → mark "sent" messages as "delivered"
-    else if (!isScreenVisible && undeliveredMessages.length > 0) {
-      if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
-      markTimeoutRef.current = setTimeout(emitMarkDelivered, 400);
-      pendingReadRef.current = true;
-    }
+    // else if (!isScreenVisible && undeliveredMessages.length > 0) {
+    //   if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
+    //   markTimeoutRef.current = setTimeout(emitMarkDelivered, 400);
+    //   pendingReadRef.current = true;
+    // }
 
     // 🌅 CASE 3: Screen becomes visible again → complete pending read
-    else if (isScreenVisible && pendingReadRef.current && socketRef?.current) {
+    else if (isScreenVisible && pendingReadRef.current && socket) {
       if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
       markTimeoutRef.current = setTimeout(emitMarkRead, 150);
     }
@@ -75,7 +83,7 @@ const useAutoMarkRead = ({
     return () => {
       if (markTimeoutRef.current) clearTimeout(markTimeoutRef.current);
     };
-  }, [messages, isScreenVisible, otherUser, auth.username, socketRef, scrollRef]);
+  }, [messages, isScreenVisible, otherUser, username, scrollRef]);
 };
 
 export default useAutoMarkRead;
