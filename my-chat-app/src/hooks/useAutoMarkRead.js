@@ -6,7 +6,7 @@ import { updateStatusByUsers } from "../redux/features/messagesSlice";
 import { resetUnread } from "../redux/features/connectionsSlice";
 
 const useAutoMarkRead = ({
-  isScreenVisible,
+  
   scrollRef,
  
 }) => {
@@ -17,11 +17,12 @@ const useAutoMarkRead = ({
  const { username } = useSelector((state) => state.user);
   const otherUser = useSelector((state) => state.connections.selectedConnection?.username || state.connections.selectedConnection?.name);
   const messages = useSelector((state) => selectMessagesByUser(state, otherUser));
+  const isScreenVisible = useSelector((state) => state.ui.isScreenVisible);
  
 const dispatch = useDispatch()
   const socket = socketService.getSocket();
   useEffect(() => {
-// console.log("useAutoMarkRead is ruuning and useAutoMarkRead is ",isScreenVisible)
+
     // Always scroll to bottom when messages update
     if (socket) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

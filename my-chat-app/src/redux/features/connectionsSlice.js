@@ -26,37 +26,46 @@ const connectionsSlice = createSlice({
       if (conn) conn.status = status;
     },
 
-    updateLastMessage: (state, action) => {
-      const { username, message, time } = action.payload;
+   updateLastMessage: (state, action) => {
+  const { username, message, time, msgId , match} = action.payload;
 
-      const conn = state.connections.find((c) => c.username === username);
-      if (conn) {
-        conn.lastMessage.message = message;
-        conn.lastMessage.time = time;
-      }
-    },
+  const conn = state.connections.find((c) => c.username === username);
+  if (!conn) return;
 
-   incrementUnread: (state, action) => {
-  const { username, message, time } = action.payload;
-  console.log("incrementUnread is running", action.payload)
+  // If existing lastMessage id does NOT match → don't update
+  if ( match && conn.lastMessage?.msgId !== msgId) {
+    return; // ❗ do nothing
+  }
 
-  // find only the target connection (FAST)
-  const idx = state.connections.findIndex(c => c.username === username);
-  if (idx === -1) return; // no match → nothing to update
+  // If msgId matches -> update the message
+  conn.lastMessage.message = message;
+  conn.lastMessage.time = time;
+  conn.lastMessage.msgId = msgId;
+},
 
-  const conn = state.connections[idx];
 
-  // Update only if message/time actually changed (Stops rerender spam)
-  const unread = (conn.unread || 0) + 1;
+    incrementUnread: (state, action) => {
+      const { username, message, time ,msgId } = action.payload;
+      console.log("incrementUnread is running", action.payload)
 
-  // update only required fields
-  conn.unread = unread;
-  conn.lastMessage = {
-    ...conn.lastMessage,
-    message,
-    time,
-  };
-}
+      // find only the target connection (FAST)
+      const idx = state.connections.findIndex(c => c.username === username);
+      if (idx === -1) return; // no match → nothing to update
+
+      const conn = state.connections[idx];
+
+      // Update only if message/time actually changed (Stops rerender spam)
+      const unread = (conn.unread || 0) + 1;
+
+      // update only required fields
+      conn.unread = unread;
+      conn.lastMessage = {
+        ...conn.lastMessage,
+        message,
+        time,
+        msgId,
+      };
+    }
 
     ,
     resetUnread: (state, action) => {

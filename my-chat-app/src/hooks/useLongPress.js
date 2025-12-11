@@ -15,7 +15,7 @@ const useLongPress = (
   const [isLongPressed, setIsLongPressed] = useState(false);
   const [pressedId, setPressedId] = useState(null);
   const timeoutRef = useRef();
-console.log(" useLongPress is running ")
+// console.log(" useLongPress is running ")
   // 🟣 Start detecting long press
   const start = useCallback(
     (event) => {

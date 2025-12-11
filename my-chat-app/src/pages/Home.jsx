@@ -1,51 +1,50 @@
 // Home.jsx
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatBox from "./ChatBox";
 import "../styles/Chatbox.css"; // layout + chat styles (shared)
-import InviteFriend from "../components/InviteFriend";
+import InviteFriend from "../modals/InviteFriend";
 import { useNavigate } from "react-router-dom";
-import { formatTimestamp } from "../../../utility/Mini-Function";
 import { useDispatch, useSelector } from "react-redux";
 import socketService from "../services/socketService";
 import { selectConnection } from "../redux/features/connectionsSlice";
 import setupSocketEvents from "../services/socketEventsListener";
 import ConnectionsList from "../components/ConnectionsList";
+import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
 
 export default function Home() {
+  console.log("Rendering Home");
   //redux state
   const { username } = useSelector((state) => state.user);
-  const { connections } = useSelector((state) => state.connections);
   const selectedConnection = useSelector((state) => state.connections.selectedConnection);
 
   //local State
   const [connectionsModalOpen, setConnectionsModalOpen] = useState(false);
 
+  useWhyRender("Home",null, { connectionsModalOpen, selectedConnection, username });
   const navigate = useNavigate(); // for navigation
   const dispatch = useDispatch(); // to dispatch actions if needed
 
 
 
-useEffect(() => {
+  useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) {
-       navigate("/login");
-       return
+      navigate("/login");
+      return
     };
-   socketService.setToken(token);  // ✔️ set token only once
-   socketService.connect();        // ✔️ connect only once
-  setupSocketEvents(dispatch)
-   return () => socketService.disconnect();
+    socketService.setToken(token);  // ✔️ set token only once
+    socketService.connect();        // ✔️ connect only once
+    setupSocketEvents(dispatch)
+    return () => socketService.disconnect();
 
-}, []);
+  }, []);
 
   const stateUpdateFunction = (data, where) => {
-    console.log("connectionsModalOpen:", connectionsModalOpen, where);
+
     if (where === "connectionsModal") {
-      //   console.log("Updating connections state in Home:", data);
       setConnectionsModalOpen(prev => !prev);
     }
     if (where === "requestsPage") {
-      // setConnectionsModalOpen(false);
       navigate("/requests");
 
     }
@@ -79,7 +78,7 @@ useEffect(() => {
           // keep it simple; you can wire search state here if needed
           />
         </div>
-<ConnectionsList />
+        <ConnectionsList />
 
 
         <button className="W-add-connection " onClick={() => { stateUpdateFunction(null, "connectionsModal") }}>
@@ -90,7 +89,7 @@ useEffect(() => {
 
       <main className={`W-chat-area ${!selectedConnection ? "W-hide-mobile" : ""}`}>
         {selectedConnection ? (
-          <ChatBox onClose={() => dispatch(selectConnection(null))} />
+          <ChatBox/>
         ) : (
           <div className="W-welcome">
             <div className="W-welcome-art">💜</div>

@@ -23,7 +23,7 @@ const App = () => {
       const result = await verifyAuthToken();
 
       if (result.valid) {
-        // console.log("result",result.userdata)
+        console.log("result",result.userdata.connections)
         dispatch(setUser({isAuthenticated:true, userdata: result.userdata }));
         dispatch(setConnections(result.userdata.connections || []));
         // dispatch ()

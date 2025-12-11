@@ -22,3 +22,4 @@ button { cursor:pointer;
 input[type="text"] { flex:1; padding:10px; border-radius:6px; border:1px solid #ccc; }
 .status { font-size:0.85rem; color:#2b7a2b; }
 .typing { font-size:0.85rem; color:#666; }
+.center { display:flex; align-items:center; justify-content:center; }

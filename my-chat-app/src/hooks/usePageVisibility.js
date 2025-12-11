@@ -1,14 +1,14 @@
 import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setIsScreenVisible } from "../redux/features/uiSlice";
 
-const usePageVisibility = (onChange) => {
+const usePageVisibility = () => {
+  const dispatch = useDispatch();
   useEffect(() => {
     const handleVisibilityChange = () => {
       // Combine both visibility and focus logic
       const isVisible = document.visibilityState === "visible" && document.hasFocus();
-      
-      if (typeof onChange === "function") {
-        onChange(isVisible);
-      }
+      dispatch(setIsScreenVisible(isVisible));
     };
 
     // Listen for both types of events
@@ -25,7 +25,7 @@ const usePageVisibility = (onChange) => {
       window.removeEventListener("focus", handleVisibilityChange);
       window.removeEventListener("blur", handleVisibilityChange);
     };
-  }, [onChange]);
+  }, []);
 };
 
 export default usePageVisibility;

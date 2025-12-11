@@ -6,6 +6,7 @@ const emojis = ["❤️", "😂", "😮", "😢", "👍", "👎"];
 const EmojiReactionModal = ({ position, onSelect , direction}) => {
   if (!position) return null;
 const Xposition = direction === "left"? position.left:"-20px"
+
   return (
     <div>
     <motion.div

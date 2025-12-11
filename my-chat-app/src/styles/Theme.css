@@ -7,16 +7,17 @@
 
   /* Backgrounds */
   --primary-background-color: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+  --primary-dark-background: #0b0710;
   --surface-color: #ffffffcc; /* glass + blur */
   --card-color: #ffffff80;
 
   /* ----- Brand Colors ----- */
-  --primary-color: #6C63FF;        /* Vibrant modern indigo */
+  --primary-color: linear-gradient(90deg, rgb(165, 59, 240), rgb(115, 38, 239));        /* Vibrant modern indigo */
   --primary-color-light: #A683FF;  /* Softer pastel */
   --primary-color-dark: #4b45c7;
 
   /* ----- Gradient Button ----- */
-  --btn-gradient-primary: linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%);;
+  --btn-gradient-primary: linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%);
   --btn-gradient-01: linear-gradient(135deg, #4facfe 0%, #6C63FF 50%, #F5576C 100%); /* Blue → Purple → Pink (Premium UI) */
   --btn-gradient-02: linear-gradient(135deg, #A1C4FD 0%, #C2E9FB 100%); /* Pastel Soft Gradient (Calm, AI-inspired) */
   --btn-gradient-03: linear-gradient(135deg, #0ff1ce 0%, #7b2ff7 100%); /* Cyber Neon (Future UI) */
