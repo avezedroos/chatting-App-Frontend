@@ -93,7 +93,7 @@ const ManageRequests = () => {
   }
 
   return (
-    <div className="MR-wrapper">
+    <div className="MR-wrapper Background-image">
       {/* Header */}
       <div className="MR-header">
         <button className="MR-back-btn" onClick={() => updateState("backButton")}>
@@ -114,9 +114,10 @@ const ManageRequests = () => {
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            
           />
         </div>
-
+<div className="MR-filter-wrapper">
         <select
           className="MR-filter"
           value={filter}
@@ -128,6 +129,8 @@ const ManageRequests = () => {
           <option>Rejected</option>
           <option>Blocked</option>
         </select>
+       <span className="filter-icon">▼</span>
+       </div>
       </div>
 
       {/* Tabs */}

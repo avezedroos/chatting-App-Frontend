@@ -6,10 +6,10 @@ import InviteFriend from "../modals/InviteFriend";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import socketService from "../services/socketService";
-import { selectConnection } from "../redux/features/connectionsSlice";
 import setupSocketEvents from "../services/socketEventsListener";
 import ConnectionsList from "../components/ConnectionsList";
 import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
+import ThemeToggle from "../components/themetogglebtn";
 
 export default function Home() {
   console.log("Rendering Home");
@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <div className="W-app">
-      <aside className={`W-sidebar ${selectedConnection ? "W-hide-mobile" : ""}`}>
+      <aside className={`W-sidebar Background-image ${selectedConnection ? "W-hide-mobile" : ""}`}>
         <div className="W-sidebar-header">
           <div className="W-user">
             <div className="W-avatar">{username.charAt(0).toUpperCase()}</div>
@@ -67,6 +67,7 @@ export default function Home() {
               className="W-Request-btn" onClick={() => { stateUpdateFunction(null, "requestsPage") }}>
               Request
             </button>
+            <ThemeToggle />
           </div>
         </div>
 
@@ -82,19 +83,19 @@ export default function Home() {
 
 
         <button className="W-add-connection " onClick={() => { stateUpdateFunction(null, "connectionsModal") }}>
-
+        +
         </button>
 
       </aside>
 
-      <main className={`W-chat-area ${!selectedConnection ? "W-hide-mobile" : ""}`}>
+      <main className={`W-chat-area Background-image ${!selectedConnection ? "W-hide-mobile" : ""}`}>
         {selectedConnection ? (
           <ChatBox/>
         ) : (
           <div className="W-welcome">
             <div className="W-welcome-art">💜</div>
-            <h2>Welcome, {username}!</h2>
-            <p>Select a chat to start messaging.</p>
+            <h2 style={{color:'var(--primary-text-color)'}}>Welcome, {username}!</h2>
+            <p style={{color:'var(--secondary-text-color)'}}>Select a chat to start messaging.</p>
           </div>
         )}
       </main>

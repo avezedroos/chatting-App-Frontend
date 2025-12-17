@@ -1,7 +1,8 @@
 // src/services/socketService.js
 import { io } from "socket.io-client";
 
-
+// const BACKEND_URL = "http://10.152.194.33:5000";
+// const BACKEND_URL = "http://192.168.1.10:5000";
 const BACKEND_URL = "https://chatting-app-backend-ofme.onrender.com";
 
 class SocketService {

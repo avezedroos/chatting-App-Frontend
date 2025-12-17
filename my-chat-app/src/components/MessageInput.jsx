@@ -190,7 +190,7 @@ const MessageInput = () => {
       {isReplying?.id && (
         <div
           style={{
-            background: "#f1d9ff",
+            background: "var(--primary-highlight-color)",
             padding: "6px 10px",
             borderLeft: "3px solid #8d49ff",
             borderRadius: 6,
@@ -237,8 +237,8 @@ const MessageInput = () => {
             padding: "6px 12px",
             borderRadius: "30px",
             border: "1px solid #ccc",
-           background:"transparent",
-            color:"#fff",
+           background:"var(--primary-highlight-color)",
+            color:"var(---primary-text-color)",
             outline: "none",
             fontSize: 16,
           }}
@@ -249,8 +249,6 @@ const MessageInput = () => {
           className="m-1"
           style={{
             padding: "6px 14px",
-            background: "var(--btn-gradient-primary)",
-            color: "#fff",
             border: "none",
             borderRadius: "30px",
             display: "flex", alignItems: "center",
@@ -265,8 +263,6 @@ const MessageInput = () => {
           className="m-1"
           style={{
             padding: "6px 14px",
-           background: "var(--btn-gradient-primary)",
-            color: "#fff",
             border: "none",
             borderRadius: "20px",
             display: "flex", alignItems: "center",

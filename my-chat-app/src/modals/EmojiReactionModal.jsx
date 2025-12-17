@@ -18,7 +18,7 @@ const Xposition = direction === "left"? position.left:"-20px"
         position: "absolute",
         top: position.top,
         [direction]: Xposition,
-        background: "#2f2f2f",
+        background: "var( --primary-btn-bg)",
         borderRadius: "30px",
         padding: "6px 10px",
         display: "flex",

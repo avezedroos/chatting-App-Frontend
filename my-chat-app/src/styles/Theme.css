@@ -1,47 +1,153 @@
+
 :root {
-  /* ----- Base Colors ----- */
-  /* --primary-text-color: #111827;  */
-  --primary-text-color: #fff; 
-  --secondary-text-color: #6B7280; 
-  --border-color: #d9d9d9;
+    --primary-background: linear-gradient(180deg, #1a1022 0%, #22122b 100%); /* use in Home.js as a main background */
+    --primary-highlight-color:#ffffff0f;/* use in serch bar and secondry avatar bg only where primary-background is use*/
+    --secondary-background: #0b0710;/* mainly use in chat box area as a main background */
+    --primary-btn-bg:linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%);/* its a universal bg apply on almost button directly*/
+    --primary-text-color:#fff;/*mainly use this color in all main text  */
+    --secondary-text-color:#6B7280;/*mainly use in all secondry text  */
+    --sent-message-bubble-bg:#d5b1e9;/*its for sent message bubble bg depend on --- secondary-background-color*/
+    --sent-message-bubble-text:rgb(97, 2, 102);/*its for sent message bubble text color depend on ---sent-message-bubble-bg */
+    --sent-message-bubble-shadow:rgba(0, 0, 0, 0.2) 0px 1px 3px;/* its for sent message bubble shadow effect depend on ---sent-message-bubble-bg */
+    --sent-message-bubble-border:0px solid transparent;/* its for sent message bubble border depend on ---sent-message-bubble-bg  */
+    --sent-message-bubble-timeStamp-text-color:rgb(102, 102, 102);/*its for sent message bubble timestamp depend on ---sent-message-bubble-bg  */
+    --sent-message-bubble-radius:14px;
+    --received-message-bubble-bg:#f3e1ff;/*its for received message bubble bg depend on ---secondary-background-color  */
+    --received-message-bubble-text:rgb(97, 2, 102);/* its for received message bubble text color depend on ---sent-message-bubble-bg */
+    --received-message-bubble-shadow:rgba(0, 0, 0, 0.2) 0px 1px 3px;/* and its simmiler to sent*/
+    --received-message-bubble-border:0px solid transparent;/*and its simmiler to sent */
+    --received-message-bubble-timeStamp-text-color:rgb(102, 102, 102);/*and its simmiler to sent*/
+    --received-message-bubble-radius:14px;
+    --primary-dubble-tick-color:gray;/* its for single and dubble ( but not read status) color for both sent and received bubbles  */
+    --secondary-dubble-tick-color:blue;/* its for read dubble tick color for both  */
+    --DateLabel-bg:rgb(43, 43, 43);/* its datelabel bg thats devide messages day/date voice */
+    --DateLabel-text:rgb(204, 204, 204);/* its for there text that depend on ---DateLabel-bg */
+    --primary-header-bg:linear-gradient(180deg, #1a1022 0%, #22122b 100%); /* its mainly header that use in home.js or any other pages */
+    --chat-box-header-bg:#0b0710;/* this is bg color of header of chatBox mainly similer to input area*/
+    --chat-box-text-area-bg:#0b0710;/*this is the bottom area where text input and othe btn is apply */
+    --chat-box-text-input-bg:#0b0710;/* this is input box */
+    --chat-box-text-input-text:#fff;/* text color of input box depend on there bg*/
+    --primary-border:1px solid rgba(255, 255, 255, 0.02);/*its border that apply on home and other pages depend on there bg */
+    --secondary-border:1px solid #fff;/* its border that apply on chat box depend on there bg*/
+    --avatar-bg: linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%); /* its bg of avatar its same bg use in home and chat box avatar bg */
+    --avatar-text: #fff; /* its text color if avatar not availbe ( use first letter of username  )*/
+    --selcted-message-color:rgb(160, 119, 200);
+}   
 
-  /* Backgrounds */
-  --primary-background-color: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
-  --primary-dark-background: #0b0710;
-  --surface-color: #ffffffcc; /* glass + blur */
-  --card-color: #ffffff80;
+.light-Theme-01 {
+  /* =========================
+     PRIMARY / GLOBAL
+  ========================== */
+  /* --primary-background: linear-gradient(
+    180deg,
+    #fff7fb 0%,
+    #f4f8fb 100%
+  ); Home / main pages */
+--primary-background:url('/bg_images/them-bg-img-01.png');
+  --primary-highlight-color: rgba(255, 255, 255, 0.55); /* search bar, small cards */
 
-  /* ----- Brand Colors ----- */
-  --primary-color: linear-gradient(90deg, rgb(165, 59, 240), rgb(115, 38, 239));        /* Vibrant modern indigo */
-  --primary-color-light: #A683FF;  /* Softer pastel */
-  --primary-color-dark: #4b45c7;
+  --secondary-background: url('/bg_images/them-bg-img-01.png'); 
+  /* Chat area background (your image) */
 
-  /* ----- Gradient Button ----- */
-  --btn-gradient-primary: linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%);
-  --btn-gradient-01: linear-gradient(135deg, #4facfe 0%, #6C63FF 50%, #F5576C 100%); /* Blue → Purple → Pink (Premium UI) */
-  --btn-gradient-02: linear-gradient(135deg, #A1C4FD 0%, #C2E9FB 100%); /* Pastel Soft Gradient (Calm, AI-inspired) */
-  --btn-gradient-03: linear-gradient(135deg, #0ff1ce 0%, #7b2ff7 100%); /* Cyber Neon (Future UI) */
-  --btn-gradient-04: linear-gradient(135deg, #6C63FF 0%, #A683FF 100%);
+  --primary-text-color: #382424; /* warm readable text */
+  --secondary-text-color: #fffefd;
 
+  /* =========================
+     BUTTONS
+  ========================== */
+  --primary-btn-bg: linear-gradient(
+    135deg,
+    #f3c9d8 0%,
+    #bee4f2 100%
+  );
 
-  --btn-gradient-hover: linear-gradient(135deg, #A683FF 0%, #6C63FF 100%);
+  /* =========================
+     CHAT HEADER / INPUT AREA
+  ========================== */
+  --primary-header-bg: transparent  ;
+  --chat-box-header-bg: rgba(255, 255, 255, 0.55);
 
-  /* ----- Neumorphism (Light Mode) ----- */
-  --neu-light: #ffffff;
-  --neu-shadow-light: rgba(0, 0, 0, 0.05);
-  --neu-shadow-dark: rgba(0, 0, 0, 0.15);
+  --chat-box-text-area-bg: rgba(255, 255, 255, 0.45);
+  --chat-box-text-input-bg: rgba(255, 255, 255, 0.6);
+  --chat-box-text-input-text: #4a3f3a;
 
-  /* ----- Neumorphism (Dark Mode) ----- */
-  --neu-dark: #1E1E2A;
-  --neu-dark-shadow-light: rgba(255, 255, 255, 0.04);
-  --neu-dark-shadow-dark: rgba(0, 0, 0, 0.7);
+  /* Glass effect */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  /* =========================
+     SENT MESSAGE (GLASS)
+  ========================== */
+  --sent-message-bubble-bg: rgba(243, 201, 216, 0.35);
+  --sent-message-bubble-text: #5e514b;
+  --sent-message-bubble-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  --sent-message-bubble-border: 1px solid rgba(243, 201, 216, 0.45);
+  --sent-message-bubble-radius: 22px 22px 8px 22px;
+  --sent-message-bubble-timeStamp-text-color: #8b7f7a;
+
+  /* =========================
+     RECEIVED MESSAGE (GLASS)
+  ========================== */
+  --received-message-bubble-bg: rgba(190, 228, 242, 0.35);
+  --received-message-bubble-text: #5e514b;
+  --received-message-bubble-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  --received-message-bubble-border: 1px solid rgba(190, 228, 242, 0.45);
+  --received-message-bubble-radius: 22px 22px 8px 22px;
+  --received-message-bubble-timeStamp-text-color: #8b7f7a;
+
+  /* =========================
+     MESSAGE STATUS
+  ========================== */
+  --primary-dubble-tick-color: #a9a3a0;
+  --secondary-dubble-tick-color: #6faecf;
+
+  /* =========================
+     DATE LABEL
+  ========================== */
+  --DateLabel-bg: rgba(255, 255, 255, 0.55);
+  --DateLabel-text: #6b5f5a;
+
+  /* =========================
+     BORDERS
+  ========================== */
+  --primary-border: 1px solid rgba(160, 170, 180, 0.28);
+  --secondary-border: 1px solid rgba(255, 255, 255, 0.5);
+
+  /* =========================
+     AVATAR
+  ========================== */
+  --avatar-bg: linear-gradient(
+    135deg,
+    #f3c9d8 0%,
+    #bee4f2 100%
+  );
+  --avatar-text: #ffffff;
+
+  --selected-message-color:rgba(255, 255, 255, 0.55);
 }
 
 
-.darkTheme-01 {
-    --background-color: linear-gradient(180deg, #1a1022 0%, #22122b 100%);
-    --primary-text-color: #e0e0e0;
-    --primary-color: #bb86fc;
-    --secondary-color: #03dac6;
-    --border-color: #333333;
+.light-Theme-02 {
+   --primary-background: url('/bg_images/them-bg-img-01.png');
+   
+    --sent-message-bubble-bg:rgba(243, 201, 216, 0.35);/*its for sent message bubble bg depend on --- secondary-background-color*/
+    --sent-message-bubble-text:#5E514B;/*its for sent message bubble text color depend on ---sent-message-bubble-bg */
+    --sent-message-bubble-shadow:0 4px 12px rgba(0, 0, 0, 0.08);/* its for sent message bubble shadow effect depend on ---sent-message-bubble-bg */
+    --sent-message-bubble-border:1px solid rgba(243, 201, 216, 0.45);/* its for sent message bubble border depend on ---sent-message-bubble-bg  */
+    --sent-message-bubble-radius:22px 22px 8px 22px;
+
+    --received-message-bubble-bg:rgba(190, 228, 242, 0.35);/*its for received message bubble bg depend on ---secondary-background-color  */
+    --received-message-bubble-text:#5E514B;/* its for received message bubble text color depend on ---sent-message-bubble-bg */
+    --received-message-bubble-shadow:0 4px 12px rgba(0, 0, 0, 0.08);/* and its simmiler to sent*/
+    --received-message-bubble-border:1px solid rgba(190, 228, 242, 0.45);/*and its simmiler to sent */
+    --received-message-bubble-radius:22px 22px 8px 22px;
+
+
+    --DateLabel-bg:linear-gradient(135deg, #F3C9D8, #BEE4F2);
+    --DateLabel-text:rgb(204, 204, 204);
+
+    --avatar-bg:linear-gradient(135deg, #F3C9D8, #BEE4F2);
+
+
 }
+

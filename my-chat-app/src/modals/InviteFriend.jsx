@@ -74,7 +74,7 @@ const InviteFriend = ({ onClose }) => {
       className="modal d-block"
       tabIndex="-1"
       style={{
-        backgroundColor: "rgba(0,0,0,0.6)",
+        backgroundColor: "rgba(0,0,0,0.0)",
         backdropFilter: "blur(5px)",
       }}
     >
@@ -82,25 +82,31 @@ const InviteFriend = ({ onClose }) => {
         className="modal-dialog modal-dialog-centered"
         style={{ maxWidth: "500px" }}
       >
-        <div className="modal-content p-3 position-relative">
+        <div className="modal-content p-2 position-relative " style={{background:"var(--primary-highlight-color)",color:'var(--primary-text-color)'}}>
+
           {/* Close button */}
           <button
             className="btn-close position-absolute top-0 end-0 m-3"
             onClick={onClose}
           ></button>
 
-          <div className="modal-header border-0">
-            <h5 className="modal-title fw-bold text-center w-100">
+          <div className="modal-header border-0 pt-1 pb-0">
+            <h5 className="modal-title fw-bold text-center w-100" style={{color:'var(--primary-text-color)'}}>
               Invite a Friend
             </h5>
+
           </div>
 
-          <div className="modal-body">
+          <div className="modal-body pt-0">
             {/* Invite code */}
             <div className="mb-3 text-center">
-              <p className="mb-1 fw-semibold">Your Invite Code:</p>
-              <div className="d-flex justify-content-center align-items-center gap-2">
-                <span className="badge bg-light text-dark fs-6 p-2 px-3">
+            <p className="invite-modal-discription">Share this invite to start chatting together instantly</p>
+            <div className="divder"></div>
+              <p className="mb-1 fw-semibold ">Your Invite Code:</p>
+
+              <div className="d-flex justify-content-center align-items-center" >
+                <div className="rounded-4" style={{background:"var(--primary-highlight-color)" ,display:'inline-flex'}}>
+                <span className="badge fs-6 p-2 px-3 ms-1 me-3 " style={{color:"var(--primary-text-color)"}}>
                   {inviteCode}
                 </span>
                 <button
@@ -110,7 +116,9 @@ const InviteFriend = ({ onClose }) => {
                 >
                   <FaCopy /> Copy
                 </button>
+                </div>
               </div>
+
               {copied && (
                 <div className="text-success small mt-1 fade show">
                   ✅ Copied to clipboard!
@@ -120,56 +128,53 @@ const InviteFriend = ({ onClose }) => {
 
             {/* Invite link */}
             <div className="mb-3 text-center">
-              <p className="mb-1 fw-semibold">Your Invite Link:</p>
-              <a
-                href={inviteLink}
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary text-break"
-              >
-                {inviteLink}
-              </a>
+              <p className="mb-1 fw-semibold"> Invite your friends</p>
 
               <div className="mt-2 d-flex justify-content-center gap-2 flex-wrap">
-                <button
-                  className="btn btn-sm rounded-4 px-3"
-                  onClick={handleShare}
-                  style={{color:"var(--primary-text-color)"}}
-                >
-                  <FaShareAlt /> Share
-                </button>
                 <a
                   href={`https://wa.me/?text=Join%20me!%20${inviteLink}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-outline-success btn-sm"
+                  className="btn btn-sm share-options"
+                  style={{color: "var(--primary-text-color)"}}
                 >
-                  <FaWhatsapp />
+                
+                  < FaWhatsapp size={22} />
                 </a>
                 <a
                   href={`https://t.me/share/url?url=${inviteLink}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-outline-info btn-sm"
+                  className="btn btn-sm share-options"
+                   style={{color: "var(--primary-text-color)"}}
                 >
-                  <FaTelegramPlane />
+                  <FaTelegramPlane size={22}/>
                 </a>
                 <a
                   href={`https://twitter.com/intent/tweet?url=${inviteLink}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-outline-primary btn-sm"
+                  className="btn btn-sm share-options"
+                   style={{color: "var(--primary-text-color)"}}
                 >
-                  <FaTwitter />
+                  <FaTwitter size={22}/>
                 </a>
                 <a
                   href={`fb-messenger://share?link=${inviteLink}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-outline-primary btn-sm"
+                  className="btn btn-sm share-options"
+                   style={{color: "var(--primary-text-color)"}}
                 >
-                  <FaFacebookMessenger />
+                  <FaFacebookMessenger size={22}/>
                 </a>
+                <button
+                  className="btn btn-sm rounded-4 px-3 "
+                  onClick={handleShare}
+                   style={{color: "var(--primary-text-color)", fontWeight:'bold'}}
+                >
+                  <FaShareAlt size={20}/> More
+                </button>
               </div>
             </div>
 

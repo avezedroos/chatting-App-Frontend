@@ -4,7 +4,7 @@ import { resetUI, setSelectionMode } from "../../redux/features/uiSlice";
 import { copyMessages } from "../../utils/copyMessages";
 import { selectMessagesByUser } from "../../redux/features/messagesSelectors";
 import { getMessageById } from "../../utils/minifunctions";
-import { a } from "framer-motion/client";
+// import { a } from "framer-motion/client";
 
 const ActionHeader = ({
   onPin = () => { },
@@ -42,14 +42,14 @@ const ActionHeader = ({
     <div
       className="d-flex align-items-center w-100"
       style={{
-        background: "var(--primary-dark-background)",
+        background: "var(--chat-box-header-bg)",
         borderBottom: "1px solid rgba(229, 229, 229, 0.813)",
         borderRadius: "0px 0px 10px 10px",
         position: "fixed",
         right: "0px",
         top: "0px",
         zIndex: 1000,
-        height: "66px",
+        height: "60px",
         padding: "10px"
       }}
     >
@@ -66,7 +66,7 @@ const ActionHeader = ({
           borderRadius: "8px",
           background: "transparent",
           border: "none",
-          color: "#fff",
+          color: "var(--primary-text-color)",
           cursor: "pointer",
         }}
       >
@@ -74,7 +74,7 @@ const ActionHeader = ({
       </button>
 
       {/* SELECTED MESSAGE COUNT */}
-      <span className="fw-bold p-2" style={{ fontSize: "20px", border: "1px solid black", borderRadius: "30px",
+      <span className="fw-bold p-2" style={{ fontSize: "20px",
         color: "var(--primary-color-dark)",
        }}>
         {selectedMessageIds?.length} selected
@@ -83,7 +83,7 @@ const ActionHeader = ({
       {/* RIGHT SIDE ICONS */}
       <div
         className="ms-auto d-flex align-items-center px-3"
-        style={{ gap: "10px", border: "1px solid black", borderRadius: "30px",background: "var(--primary-color)" }}
+        style={{ gap: "10px", border: "1px solid black", borderRadius: "30px",background: "var( --primary-btn-bg)" }}
       >
         {/* COPY BUTTON */}
         <div
@@ -119,7 +119,7 @@ const ActionHeader = ({
         <div
           className="btn p-0 me-2"
           onClick={onMore}
-          style={{ fontSize: "30px", color: "#ccc" }}
+          style={{ fontSize: "30px", color: "var(--primary-text-color)" }}
           title="More"
         >
           ⋮

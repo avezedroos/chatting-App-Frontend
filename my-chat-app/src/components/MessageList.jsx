@@ -8,7 +8,6 @@ import socketService from "../services/socketService";
 import MessageActionModal from "../modals/MessageActionModal";
 import { getMessageById } from "../utils/minifunctions";
 import { setSelectedMessage, setSelectionMode, startReplying } from "../redux/features/uiSlice";
-
 // 📌 Format date into "Today", "Yesterday", "DD/MM/YYYY"
 const formatDayLabel = (timestamp) => {
   const date = new Date(timestamp);
@@ -421,13 +420,12 @@ const MessageList = () => {
         const isSelected = selectedMessages.includes(id);
 
         const bubbleStyle = {
-          maxWidth: "70%",
-          borderRadius: "14px",
-          backgroundColor: isSent
-              ? "#d5b1e9"
-              : "#f3e1ff",
-          color: "#610266",
-          boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+          background: isSent?"var(--sent-message-bubble-bg)":"var(--received-message-bubble-bg)",
+          color:isSent?"var(--sent-message-bubble-text)":"var(--received-message-bubble-text)",
+          boxShadow:isSent?"var(--sent-message-bubble-shadow)":"var(--received-message-bubble-shadow)",
+          border:isSent?"var(--sent-message-bubble-border)":"var(--received-message-bubble-border)",
+          borderRadius:isSent?"var(--sent-message-bubble-radius)":"var(--received-message-bubble-radius)",
+
         };
 
         const animationClass = isSent ? "msg-animate-right" : "msg-animate-left";
@@ -437,13 +435,15 @@ const MessageList = () => {
         return (
           <React.Fragment key={id}>
             {showDateLabel && (
-              <div className="text-center my-3" style={{ color: "#ccc" }}>
+              <div className="text-center my-3">
                 <span
                   style={{
-                    background: "#2b2b2b",
+                    background: "var(--DateLabel-bg)",
                     padding: "4px 10px",
                     borderRadius: "12px",
                     fontSize: "0.85rem",
+                    color:"var(--DateLabel-text)",
+                    userSelect: "none"
                   }}
                 >
                   {dateLabel}
@@ -454,7 +454,7 @@ const MessageList = () => {
             <div
               className={`d-flex flex-column ${isSent ? "align-items-end" : "align-items-start"
                 }`}
-                style={{background:`${isSelected?"#a077c8":""}`}}
+                style={{background:`${isSelected?"var( --selected-message-color)":""}`}}
             >
               {/* MESSAGE BUBBLE */}
               <div
@@ -466,7 +466,7 @@ const MessageList = () => {
                 ref={(el) => (messageRefs.current[id] = el)}
                 data-id={id}
                 data-direction={isSent ? "right" : "left"}
-                className={`py-2 px-3 my-2 fw-bold ${animationClass}`}
+                className={`py-2 px-3 my-2 fw-bold message-bubble-Style ${animationClass}`}
                 style={{
                   ...bubbleStyle,
                   transform: `translateX(${swipeOffset[id] || 0}px) scale(${1 - Math.min((swipeOffset[id] || 0) / 1000, 0.03)})`,
@@ -480,7 +480,7 @@ const MessageList = () => {
                 {m.replyTo && (
                   <div
                     className="border-start ps-1 my-1"
-                    style={{ fontSize: "0.8rem", color: "#555" }}
+                    style={{ fontSize: "0.8rem", color: "#555",userSelect: "none" }}
                   >
                     {m.replyTo.text || "previous message"}
                   </div>

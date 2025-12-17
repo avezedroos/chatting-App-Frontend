@@ -1,17 +1,15 @@
 // ChatBox.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { api } from "../services/api";
 import socketService from "../services/socketService";
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
 import usePageVisibility from "../hooks/usePageVisibility";
 import useAutoMarkRead from "../hooks/useAutoMarkRead";
-import { timeAgo } from "../../../utility/Mini-Function";
 import "../styles/Chatbox.css";
 import { useDispatch, useSelector } from "react-redux";
 import {setMessagesForUser, updateStatusByUsers } from "../redux/features/messagesSlice";
 import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
-import ChatBoxheader from "../components/Headers/ChatBoxheader";
 import HeaderSwitcher from "../components/Headers/HeaderSwitcher";
 
 
@@ -94,7 +92,7 @@ const ChatBox = () => {
 
       {/* this is the main chat area */}
       <div className="W-chat-main">
-        <div ref={scrollRef} className="W-message-container">
+        <div ref={scrollRef} className="W-message-container" >
           <MessageList />
         </div>
         <div className="W-input-area">

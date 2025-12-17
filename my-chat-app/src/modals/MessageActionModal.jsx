@@ -94,7 +94,7 @@ const MessageActionModal = ({ position, direction, selectedMessages, closeModal 
         position: "absolute",
         top: position.top + offset,
         [direction]: "-10px",
-        background: "#2f2f2f",
+        background: "var(--primary-btn-bg)",
         borderRadius: "16px",
         padding: "12px 16px",
         minWidth: "180px",
@@ -115,7 +115,8 @@ const MessageActionModal = ({ position, direction, selectedMessages, closeModal 
             gap: "12px",
             fontSize: "0.95rem",
             cursor: "pointer",
-            color: a.danger ? "#ff4f4f" : "white",
+            color: "var(--primary-text-color)",
+            fontWeight:'bold',
             padding: "4px 2px",
             transition: "0.2s",
           }}
