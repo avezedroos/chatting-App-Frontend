@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { resetUI, setSelectionMode } from "../../redux/features/uiSlice";
+import { resetUI, setSelectedMessage, setSelectionMode } from "../../redux/features/uiSlice";
 import { copyMessages } from "../../utils/copyMessages";
 import { selectMessagesByUser } from "../../redux/features/messagesSelectors";
 import { getMessageById } from "../../utils/minifunctions";
@@ -23,6 +23,7 @@ const ActionHeader = ({
   const onBack = () => {
     // Implement back action logic here
     dispatch(setSelectionMode(false));
+    dispatch(setSelectedMessage([]));
 
   };
 

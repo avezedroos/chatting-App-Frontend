@@ -31,7 +31,7 @@
     --secondary-border:1px solid #fff;/* its border that apply on chat box depend on there bg*/
     --avatar-bg: linear-gradient(135deg, #a64de6 0%, #6e2ad8 100%); /* its bg of avatar its same bg use in home and chat box avatar bg */
     --avatar-text: #fff; /* its text color if avatar not availbe ( use first letter of username  )*/
-    --selcted-message-color:rgb(160, 119, 200);
+    --selected-message-color:rgb(160, 119, 200);
 }   
 
 .light-Theme-01 {

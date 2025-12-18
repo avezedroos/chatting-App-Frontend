@@ -454,7 +454,7 @@ const MessageList = () => {
             <div
               className={`d-flex flex-column ${isSent ? "align-items-end" : "align-items-start"
                 }`}
-                style={{background:`${isSelected?"var( --selected-message-color)":""}`}}
+                style={{background:`${isSelected?"var(--selected-message-color)":""}`}}
             >
               {/* MESSAGE BUBBLE */}
               <div

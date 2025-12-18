@@ -18,7 +18,9 @@ const useLongPress = (
 // console.log(" useLongPress is running ")
   // 🟣 Start detecting long press
   const start = useCallback(
+    
     (event) => {
+      console.log("start function is running")
       // console.log( "event.currentTarget.dataset",event.currentTarget.dataset)
       const messageId = event.currentTarget.dataset.id;
       setPressedId(messageId);
@@ -33,6 +35,7 @@ const useLongPress = (
 
   // 🟡 Clear timeout
   const clear = useCallback(() => {
+    console.log("clear function is runing")
     clearTimeout(timeoutRef.current);
   }, []);
 
@@ -40,12 +43,12 @@ const useLongPress = (
   const handleClick = useCallback(
     (event) => {
       const messageId = event.currentTarget.dataset.id;
-console.log("handleClick is running", { isLongPressed, selectionMode });
+console.log("handleClick is running",  isLongPressed, selectionMode );
       // Prevent click immediately after long press
-     // if (isLongPressed) {
-      //  setTimeout(() => setIsLongPressed(false), 50);
-     //   return;
-   //   }
+    //  if (isLongPressed) {
+    //    setTimeout(() => setIsLongPressed(false), 50);
+    //    return;
+    //  }
 
       if (selectionMode) {
         onClick?.(messageId, event);
