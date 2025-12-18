@@ -45,10 +45,10 @@ const useLongPress = (
       const messageId = event.currentTarget.dataset.id;
 console.log("handleClick is running",  isLongPressed, selectionMode );
       // Prevent click immediately after long press
-     if (isLongPressed) {
-       setTimeout(() => setIsLongPressed(false), 50);
-       return;
-     }
+    //  if (isLongPressed) {
+    //    setTimeout(() => setIsLongPressed(false), 50);
+    //    return;
+    //  }
 
       if (selectionMode) {
         onClick?.(messageId, event);

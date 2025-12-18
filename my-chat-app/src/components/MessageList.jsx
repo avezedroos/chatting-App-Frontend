@@ -335,37 +335,40 @@ const MessageList = () => {
   let lastDateLabel = null;
 
 
-  let longPressTimer = null;   // ⭐ Unified handler so swipe does NOT cancel long press
+  const longPressTimerRef = useRef(null);
+
 
   const unifiedTouchStart = (e, msg) => {
-    if (selectionMode) return;   // ⛔ stop longPress + swipe conflict
-    const id = msg._id || msg.tempId;
+  if (selectionMode) return;
+  const id = msg._id || msg.tempId;
 
-    longPressTimer = setTimeout(() => {
-      eventHandlers.onTouchStart?.({
-        ...e,
-        currentTarget: messageRefs.current[id], // FIXED
-      });
-    }, 70);
+  longPressTimerRef.current = setTimeout(() => {
+    eventHandlers.onTouchStart?.({
+      ...e,
+      currentTarget: messageRefs.current[id],
+    });
+  }, 70);
 
-    handleTouchStart(e, msg);
-  };
+  handleTouchStart(e, msg);
+};
+
+const unifiedTouchMove = (e, msg) => {
+  if (selectionMode) return;
+  clearTimeout(longPressTimerRef.current);
+  eventHandlers.onTouchMove?.();
+  handleTouchMove(e, msg);
+};
+
+const unifiedTouchEnd = (e, msg) => {
+  if (selectionMode) return;
+  clearTimeout(longPressTimerRef.current);
+  eventHandlers.onTouchEnd?.(e);
+  handleTouchEnd(e, msg);
+};
 
 
-  const unifiedTouchMove = (e, msg) => {
-    if (selectionMode) return;   // ⛔ stop swipe
-    clearTimeout(longPressTimer);
-    eventHandlers.onTouchMove?.(); // cancel long press
-    handleTouchMove(e, msg);
-  };
 
-  const unifiedTouchEnd = (e, msg) => {
-    if (selectionMode) return;   // ⛔ stop swipe
-    clearTimeout(longPressTimer);
-    eventHandlers.onTouchEnd?.(e);
 
-    handleTouchEnd(e, msg);
-  };
   const is24hr = Intl.DateTimeFormat([], { hour: "numeric" })
     .formatToParts(new Date())
     .some(part => part.type === "dayPeriod") === false;
