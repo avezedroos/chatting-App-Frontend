@@ -46,10 +46,7 @@ const ChatBox = () => {
       dispatch(updateStatusByUsers({ userId: receiver, status: "delivered", messageIds }));
     });
 
-    // IMPORTANT: only remove listeners, don't disconnect socket!
     return () => {
-      // socket.off("connect");
-      // socket.off("typing");
       socket.off("messages-read");
       socket.off("messages-delivered");
     };
@@ -83,13 +80,11 @@ const ChatBox = () => {
     scrollRef,
   });
 
-  // const otherOnline = onlineUsers.includes(otherUser);
-
   return (
     <div className="W-chatbox">
 
         <HeaderSwitcher />
-
+        
       {/* this is the main chat area */}
       <div className="W-chat-main">
         <div ref={scrollRef} className="W-message-container" >
