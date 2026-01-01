@@ -20,9 +20,11 @@ const setupSocketEvents = (dispatch) => {
   socket.on("user-offline", (data) => {
     const { payload } = data;
     const { username, lastseen } = payload
+    console.log("user-offline " ,username, lastseen)
     dispatch(setUserOffline(username));
     dispatch(updateOnlineStatusConnection({ userId: username, online: false, lastseen: lastseen }));
   });
+  
 
   // ---- receive message ----
   socket.on("receive-message", (msg) => {

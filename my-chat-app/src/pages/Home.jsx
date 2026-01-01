@@ -10,6 +10,8 @@ import setupSocketEvents from "../services/socketEventsListener";
 import ConnectionsList from "../components/ConnectionsList";
 import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
 import ThemeToggle from "../components/themetogglebtn";
+import MessageInput from "../components/MessageInput";
+import HeaderSwitcher from "../components/Headers/HeaderSwitcher";
 
 export default function Home() {
   console.log("Rendering Home");
@@ -86,11 +88,19 @@ export default function Home() {
         +
         </button>
 
+
       </aside>
 
       <main className={`W-chat-area Background-image ${!selectedConnection ? "W-hide-mobile" : ""}`}>
         {selectedConnection ? (
+          <>
+          <HeaderSwitcher/>
           <ChatBox/>
+          
+          <MessageInput />
+        
+          
+        </>
         ) : (
           <div className="W-welcome">
             <div className="W-welcome-art">💜</div>

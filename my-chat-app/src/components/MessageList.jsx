@@ -402,7 +402,7 @@ const unifiedTouchEnd = (e, msg) => {
 
 
   return (
-    <div ref={containerRef} style={{ position: "relative", paddingBottom: "50px" }}>
+    <div ref={containerRef} style={{ position: "relative"}}>
       {sortedMessages.map((m) => {
         const id = m._id || m.tempId;
         const isSent = m.sender === currentUser;

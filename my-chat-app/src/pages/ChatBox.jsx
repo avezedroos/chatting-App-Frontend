@@ -3,14 +3,11 @@ import React, { useEffect, useRef } from "react";
 import { api } from "../services/api";
 import socketService from "../services/socketService";
 import MessageList from "../components/MessageList";
-import MessageInput from "../components/MessageInput";
 import usePageVisibility from "../hooks/usePageVisibility";
 import useAutoMarkRead from "../hooks/useAutoMarkRead";
 import "../styles/Chatbox.css";
 import { useDispatch, useSelector } from "react-redux";
 import {setMessagesForUser, updateStatusByUsers } from "../redux/features/messagesSlice";
-import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
-import HeaderSwitcher from "../components/Headers/HeaderSwitcher";
 
 
 const ChatBox = () => {
@@ -24,14 +21,9 @@ const ChatBox = () => {
   // Redux state
   const { username } = useSelector((state) => state.user);
   const otherUser = useSelector((state) => state.connections.selectedConnection?.username || state.connections.selectedConnection?.name);
- 
-
- 
-
-  // useWhyRender("ChatBox",{ username, otherUser });
   usePageVisibility();
 
-
+  // Socket event listeners
   useEffect(() => {
     const socket = socketService.getSocket();
     if (!socket) return; // socket not ready yet
@@ -82,18 +74,12 @@ const ChatBox = () => {
 
   return (
     <div className="W-chatbox">
-
-        <HeaderSwitcher />
-        
       {/* this is the main chat area */}
       <div className="W-chat-main">
         <div ref={scrollRef} className="W-message-container" >
           <MessageList />
         </div>
-        <div className="W-input-area">
-          <MessageInput />
-        </div>
-      </div>
+      </div> 
     </div>
   );
 };

@@ -184,6 +184,7 @@ const MessageInput = () => {
   };
 
   return (
+    <div className="W-input-area" style={{marginBottom:`${isReplying?.id ? '30px' : '10px'}`}}>
     <div className="h-100" >
 
       {/* ⭐ REPLY PREVIEW BOX */}
@@ -222,7 +223,7 @@ const MessageInput = () => {
       )}
 
       {/* ⭐ INPUT ROW */}
-      <div style={{ display: "flex", padding: "0px", height: "100%" }}>
+      <div style={{ display: "flex", padding: "0px", }}>
         <input
           id="chat-input-box"
           type="text"
@@ -238,7 +239,7 @@ const MessageInput = () => {
             borderRadius: "30px",
             border: "1px solid #ccc",
            background:"var(--primary-highlight-color)",
-            color:"var(---primary-text-color)",
+            color:"var(--primary-text-color)",
             outline: "none",
             fontSize: 16,
           }}
@@ -273,6 +274,7 @@ const MessageInput = () => {
         </button>
         }
       </div>
+    </div>
     </div>
   );
 };

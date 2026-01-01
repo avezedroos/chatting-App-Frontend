@@ -175,8 +175,8 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /* overflow: hidden; */
-
+  overflow: hidden;
+  /* overflow-y: scroll; */
 }
 
 /* Header */
@@ -191,7 +191,7 @@
   background: var(--chat-box-header-bg);
   border-radius: 0px 0px 12px 12px ;
   /* color:#5E514B; */
-  position: fixed;
+  position: sticky;
   right: 0px;
   top: 0px;
   z-index: 1000;
@@ -276,36 +276,11 @@
   /* Always keep image centered */
   background-repeat: no-repeat;
   /* Prevent repeating */
-  background-attachment: fixed;
+  /* background-attachment: fixed; */
 }
 
-/* Messages — assume MessageList uses classes below; fallback rendering will also look OK */
-.W-msg {
-  max-width: 72%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  line-height: 1.2;
-  word-wrap: break-word;
-  font-size: 14px;
-}
 
-.W-msg--other {
-  align-self: flex-start;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-}
 
-.W-msg--me {
-  align-self: flex-end;
-  background: linear-gradient(90deg, #a64de6, #6e2ad8);
-  color: white;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 6px;
-  border-bottom-left-radius: 12px;
-}
 
 /* message meta row (time / read) */
 .W-msg-meta {
@@ -328,15 +303,13 @@
 }
 
 /* input area */
-
-
 .W-input-area {
   border-top: 1px solid rgba(229, 229, 229, 0.813);
   border-radius: 10px 10px 0px 0px;
-  position: fixed;
-  bottom: 0px;
+  position: sticky;
+  bottom: 0;
+  left: 0;
   width: 100%;
-  background: var(--primary-dark-background);
 
   /* FIXED */
   height: auto;
@@ -345,23 +318,14 @@
   /* normal height */
   padding: 5px;
   /* inner spacing */
-
+/* background-color: #fff9f9; */
   display: flex;
+  /* align-items: center; */
   flex-direction: column;
   gap: 6px;
   /* space between reply box and input */
-  z-index: 999;
-}
-
-
-.W-send-btn {
-  background: linear-gradient(90deg, #a64de6, #6e2ad8);
-  border: none;
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 700;
+  z-index: 9999;
+  /* margin: 0px; */
 }
 
 @media (min-width: 768px) {
@@ -390,12 +354,8 @@
 @media (max-width: 540px) {
   .W-message-container {
     padding: 12px;
-    margin-top: 60px;
-    margin-bottom: 70px;
-  }
-
-  .W-msg {
-    max-width: 86%;
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 }
 
@@ -794,11 +754,10 @@ border-radius: 50px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* ensure it fills full screen height */
-  overflow: hidden; /* prevent double scroll */
   align-items: stretch;
   justify-content: center;
   background: var(--secondary-background);
+  width: 100vw;
 }
 
 
@@ -813,6 +772,7 @@ border-radius: 50px;
   justify-content: flex-end;
   /* prevent double scroll */
   position: relative;
+  height: 100vh;
 }
 
 
@@ -820,7 +780,7 @@ border-radius: 50px;
 .W-message-container {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  /* padding: 20px; */
   display: flex;
   flex-direction: column;
   gap: 12px;
