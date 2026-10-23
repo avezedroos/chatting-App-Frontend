@@ -27,47 +27,66 @@ const connectionsSlice = createSlice({
     },
 
    updateLastMessage: (state, action) => {
-  const { username, message, time, msgId , match} = action.payload;
+  const { username, message, time, msgId, match } = action.payload;
 
-  const conn = state.connections.find((c) => c.username === username);
-  if (!conn) return;
+  const index = state.connections.findIndex(
+    (c) => c.username === username
+  );
 
-  // If existing lastMessage id does NOT match → don't update
-  if ( match && conn.lastMessage?.msgId !== msgId) {
-    return; // ❗ do nothing
+  if (index === -1) return;
+
+  const conn = state.connections[index];
+
+  // 🛡️ Safety check (keep your logic)
+  if (match && conn.lastMessage?.msgId !== msgId) {
+    return;
   }
 
-  // If msgId matches -> update the message
-  conn.lastMessage.message = message;
-  conn.lastMessage.time = time;
-  conn.lastMessage.msgId = msgId;
+  // ✅ Update lastMessage
+  conn.lastMessage = {
+    ...conn.lastMessage,
+    message,
+    time,
+    msgId
+  };
+
+  // 🔥 DESCENDING ORDER LOGIC (move to top)
+  const [updatedConnection] = state.connections.splice(index, 1);
+  state.connections.unshift(updatedConnection);
 },
 
 
+
     incrementUnread: (state, action) => {
-      const { username, message, time ,msgId } = action.payload;
-      console.log("incrementUnread is running", action.payload)
+  const { username, message, time, msgId } = action.payload;
+  console.log("incrementUnread is running", action.payload);
 
-      // find only the target connection (FAST)
-      const idx = state.connections.findIndex(c => c.username === username);
-      if (idx === -1) return; // no match → nothing to update
+  // 1️⃣ Find target connection
+  const idx = state.connections.findIndex(
+    (c) => c.username === username
+  );
+  if (idx === -1) return;
 
-      const conn = state.connections[idx];
+  const conn = state.connections[idx];
 
-      // Update only if message/time actually changed (Stops rerender spam)
-      const unread = (conn.unread || 0) + 1;
+  // 2️⃣ Update unread count
+  const unread = (conn.unread || 0) + 1;
 
-      // update only required fields
-      conn.unread = unread;
-      conn.lastMessage = {
-        ...conn.lastMessage,
-        message,
-        time,
-        msgId,
-      };
-    }
+  conn.unread = unread;
 
-    ,
+  // 3️⃣ Update lastMessage (minimal update)
+  conn.lastMessage = {
+    ...conn.lastMessage,
+    message,
+    time,
+    msgId,
+  };
+
+  // 4️⃣ 🔥 DESCENDING ORDER LOGIC (move to top)
+  const [updatedConnection] = state.connections.splice(idx, 1);
+  state.connections.unshift(updatedConnection);
+},
+
     resetUnread: (state, action) => {
       const userId = action.payload;
       const conn = state.connections.find((c) => c.username === userId);

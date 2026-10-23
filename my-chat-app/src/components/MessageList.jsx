@@ -41,7 +41,7 @@ const MessageList = () => {
   const currentUser = useSelector((state) => state.user.username);
   const otherUser =useSelector((state) =>state.connections.selectedConnection?.username ||state.connections.selectedConnection?.name);
   const messages = useSelector((state) => selectMessagesByUser(state, otherUser));
-  const selectionMode = useSelector((state) => state.ui.selectionMode);
+  const selectionMode = useSelector((state) => state.ui.chatBoxSelectionMode);
   const selectedMessages = useSelector((state) => state.ui.selectedMessage) ;
 // States
   
@@ -180,8 +180,8 @@ const MessageList = () => {
 
   // 🟣 Long Press
   const handleLongPress = (pressedId) => {
-    dispatch(setSelectedMessage([pressedId]));
-    dispatch(setSelectionMode(true));
+    dispatch(setSelectedMessage({where:"messages", value:[pressedId]}));
+    dispatch(setSelectionMode({where:"chatBox", value:true}));
 
     const element = messageRefs.current[pressedId];
     const parent = containerRef.current;
@@ -210,13 +210,13 @@ const MessageList = () => {
       if (selectedMessages.includes(clickedId)) {
         // Deselect
         const updated = selectedMessages.filter((id) => id !== clickedId);
-        dispatch(setSelectedMessage(updated));
+        dispatch(setSelectedMessage({where:"messages", value:updated}));
         if (updated.length === 0) {
           console.log("no message selected  so turning off selection mode")
-          dispatch(setSelectionMode(false));
+          dispatch(setSelectionMode({where:"chatBox", value:false}));
         }
       } else {
-        dispatch(setSelectedMessage([...selectedMessages, clickedId]));
+        dispatch(setSelectedMessage({where:"messages", value:[...selectedMessages, clickedId]}));
         setEmojiPosition(null);
       }
     }
@@ -327,8 +327,8 @@ const MessageList = () => {
   // Helper
   const resetUI = () => {
     console.log("resetUI is running")
-    dispatch(setSelectedMessage([]));
-    dispatch(setSelectionMode(false));
+    dispatch(setSelectedMessage({where:"messages", value:[]}));
+    dispatch(setSelectionMode({where:"chatBox", value:false}));
     setEmojiPosition(null);
   };
 

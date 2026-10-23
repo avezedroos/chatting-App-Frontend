@@ -4,6 +4,7 @@ import connectionsReducer from "./features/connectionsSlice";
 import messagesReducer from "./features/messagesSlice";
 import chatMetaReducer from "./features/chatMetaSlice";
 import uiReducer from "./features/uiSlice";
+import userSettingsReducer from "./features/userSettingsSlice";
 
 // import chatReducer from "../features/chatSlice";
 
@@ -14,6 +15,7 @@ const store = configureStore({
     messages: messagesReducer,
     chatMeta: chatMetaReducer,
     ui:uiReducer,
+    userSettings:userSettingsReducer,
     // chat: chatReducer,
   },
 });

@@ -2,20 +2,71 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectConnection } from "../redux/features/connectionsSlice";
-import { formatTimestamp } from "../../../utility/Mini-Function";
+import { formatTimestamp } from "../utils/minifunctions";
+import useLongPressForConnectionList from "../hooks/useLongPressForConnectionList";
+import { setSelectedMessage, setSelectionMode } from "../redux/features/uiSlice";
+import { selectOrderedConnections } from "../redux/features/connectionSelectors";
+
+
 
 export default function ConnectionsList() {
   const dispatch = useDispatch();
   // console.log("ConnectionsList is render")
 
   // Redux State
-  const { connections } = useSelector((state) => state.connections);
+  // const { connections } = useSelector((state) => state.connections);
+  const connections = useSelector(selectOrderedConnections);
+  console.log("Ordered connections:", connections);
   const selectedConnection = useSelector((state) => state.connections.selectedConnection);
-  const { onlineUsers } = useSelector((state) => state.chatMeta);
-  // console.log("ConnectionsList is render", onlineUsers)
+  const { onlineUsers , typing} = useSelector((state) => state.chatMeta);
+  const {connectionSelectionMode} = useSelector((state) => state.ui);
+  const {selectedConnections} = useSelector((state) => state.ui);
+  const {pinnedConnections} = useSelector((state) => state.userSettings.connection);
+  
+  // 🔵 LOCAL STATE (important)
+
+// 🔹 Helpers
+  
+
+  const toggleSelection = (id) => {
+  let updated;
+  if (selectedConnections.includes(id)) {
+    updated = selectedConnections.filter((x) => x !== id);
+
+    // ✅ Last unselect → exit selection mode
+    if (updated.length === 0) {
+     dispatch(setSelectionMode({where:"connections", value:false}));
+    }
+  } else {
+    updated = [...selectedConnections, id];
+    // ✅ First select → enter selection mode
+    dispatch(
+      setSelectionMode({ where: "connections", value: true })
+    );
+  }
+  dispatch(setSelectedMessage({where:"connections", value:updated}));
+};
 
 
-  const {typing} = useSelector((state)=>state.chatMeta)
+    const openChat = (id) => {
+    const conn = connections.find((c) => c.userId === id);
+    if (!conn) return;
+    dispatch(selectConnection(conn));
+  };
+
+  const { bind} = useLongPressForConnectionList({
+    onLongPress: (id) => {
+       toggleSelection(id);
+    },
+  onClick: (id) => {
+    if (connectionSelectionMode) {
+      toggleSelection(id);
+    } else {
+      openChat(id);
+    }
+  },
+});
+
 
   return (
     <div className="W-contacts">
@@ -41,12 +92,15 @@ export default function ConnectionsList() {
       )}
 
       {connections.map((c, i) => (
-        // console.log(c.unread) ||
+        // console.log(c) ||
         <div
-          key={c.id || i}
-          className={`W-contact ${selectedConnection?.id === c.id ? "W-active" : ""}`}
-          onClick={() => dispatch(selectConnection(c))}
+          key={c.userId || i}
+          className={`W-contact
+             ${selectedConnection?.userId === c.userId ? "W-active" : ""}
+             ${selectedConnections.includes(c.userId) ? "W-selected" : ""}
+            `}
           role="button"
+          {...bind(c.userId)}
         >
           <div className="W-contact-left">
             <div className="W-contact-avatar">
@@ -90,6 +144,7 @@ export default function ConnectionsList() {
           <div className="W-contact-right">
             <div className="W-contact-time">{formatTimestamp(c.lastMessage.time)}</div>
             {c.unread > 0 && <div className="W-unread">{c.unread}</div>}
+            {pinnedConnections.includes(c.userId) && <div className="W-pinned">📌</div>}
           </div>
         </div>
       ))}

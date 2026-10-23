@@ -16,8 +16,16 @@ const initialState = {
   },
   edit: null,   // Edit system // message object being edited
   selectedMessage: [], // Selected message (for action modals)
+  selectedConnections: [], // Selected connections (for action modals)
   isScreenVisible: true,  // Page visibility
-  selectionMode: false, // show/hide action header in chat box
+  chatBoxSelectionMode: false, // show/hide action header in chat box
+  connectionSelectionMode: false, // show/hide action header in chat box
+  PulseModal: {
+    show: false,
+    type: "info", // error | success | info | warning
+    title: "",
+    message: "",
+  },
 };
 
 const uiSlice = createSlice({
@@ -100,20 +108,46 @@ const uiSlice = createSlice({
     // -----------------------------
 
     setSelectedMessage: (state, action) => {
-      state.selectedMessage = action.payload; // message object
+      const { where, value } = action.payload;
+      if (where === "connections") {
+        state.selectedConnections = value;
+      } else if (where === "messages") {
+        state.selectedMessage = value; // message object
+      }
     },
 
     resetUI: (state) => {
       state.selectedMessage = [];
-      state.selectionMode = false;
+      state.chatBoxSelectionMode = false;
     },
 
     // -----------------------------
     // 🔴 Action Header visibility
     // -----------------------------  
     setSelectionMode: (state, action) => {
-      state.selectionMode = action.payload;
+      const { where, value } = action.payload;
+      if (where === "connections") {
+        if (value === false) {
+          state.selectedConnections = [];
+        }
+        state.connectionSelectionMode = value;
+      } else if (where === "chatBox") {
+        state.chatBoxSelectionMode = value;
+      }
     },
+
+    setPulseModal: (state, action) => {
+      if (action.payload === null) {
+        state.PulseModal = {
+          show: false,
+          type: "", // error | success | info | warning
+          title: "",
+          message: "",};
+        return;
+      }
+      state.PulseModal = { ...state.PulseModal, ...action.payload };
+    }
+
   },
 });
 
@@ -130,6 +164,7 @@ export const {
   resetUI,
   setIsScreenVisible,
   setSelectionMode,
+  setPulseModal,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

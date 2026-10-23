@@ -22,8 +22,8 @@ const ActionHeader = ({
 
   const onBack = () => {
     // Implement back action logic here
-    dispatch(setSelectionMode(false));
-    dispatch(setSelectedMessage([]));
+    dispatch(setSelectionMode({where:"chatBox", value:false}));
+    dispatch(setSelectedMessage({where:"messages", value:[]}));
 
   };
 
@@ -51,7 +51,8 @@ const ActionHeader = ({
         top: "0px",
         zIndex: 1000,
         height: "60px",
-        padding: "10px"
+        padding: "10px",
+        width: "100%",
       }}
     >
       {/* BACK BUTTON */}

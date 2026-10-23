@@ -900,3 +900,133 @@ border-radius: 50px;
 .divder{
   border:var(--primary-border)
 }
+
+
+
+.W-contact.W-selected {
+  background-color: rgba(0, 123, 255, 0.15); /* light blue */
+  border-left: 4px solid #0d6efd;
+}
+
+.W-contact.W-selected:hover {
+  background-color: rgba(0, 123, 255, 0.22);
+}
+
+.icon-groups{
+   gap: 10px;
+    border: 1px solid black;
+    border-radius: 30px;
+   background: var( --primary-btn-bg) ;
+  }
+
+.no-caret::after {
+  display: none !important;
+}
+/* Clean 3-dot button */
+.selection-action-btn {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.selection-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+}
+
+
+/* //puls modal css */
+/* Backdrop */
+.app-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1040;
+}
+
+/* Center Wrapper */
+.app-modal-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+/* Modal Card */
+.app-modal {
+  width: 92%;
+  max-width: 420px;
+  border-radius: 14px;
+  animation: modalScaleIn 0.25s ease;
+  border: none;
+}
+
+/* Header */
+.app-modal .card-header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+/* Icon */
+.modal-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #fff;
+}
+
+/* Type Colors */
+.modal-error .modal-icon {
+  background: #dc3545;
+}
+
+.modal-success .modal-icon {
+  background: #198754;
+}
+
+.modal-info .modal-icon {
+  background: #0d6efd;
+}
+
+.modal-warning .modal-icon {
+  background: #ffc107;
+  color: #000;
+}
+
+/* Footer */
+.app-modal .card-footer {
+  background: #fff;
+  border-top: 1px solid #eee;
+}
+
+/* Animation */
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mobile Friendly */
+@media (max-width: 480px) {
+  .app-modal .card-footer {
+    flex-direction: column;
+  }
+
+  .app-modal .btn {
+    width: 100%;
+  }
+}

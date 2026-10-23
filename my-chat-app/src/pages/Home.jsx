@@ -9,16 +9,16 @@ import socketService from "../services/socketService";
 import setupSocketEvents from "../services/socketEventsListener";
 import ConnectionsList from "../components/ConnectionsList";
 import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
-import ThemeToggle from "../components/themetogglebtn";
 import MessageInput from "../components/MessageInput";
 import HeaderSwitcher from "../components/Headers/HeaderSwitcher";
+import PulseModal from "../modals/PulseModal";
 
 export default function Home() {
   console.log("Rendering Home");
   //redux state
   const { username } = useSelector((state) => state.user);
   const selectedConnection = useSelector((state) => state.connections.selectedConnection);
-
+  const PulseModalData = useSelector((state) => state.ui.PulseModal);
   //local State
   const [connectionsModalOpen, setConnectionsModalOpen] = useState(false);
 
@@ -42,13 +42,8 @@ export default function Home() {
   }, []);
 
   const stateUpdateFunction = (data, where) => {
-
     if (where === "connectionsModal") {
       setConnectionsModalOpen(prev => !prev);
-    }
-    if (where === "requestsPage") {
-      navigate("/requests");
-
     }
   }
 
@@ -56,23 +51,7 @@ export default function Home() {
   return (
     <div className="W-app">
       <aside className={`W-sidebar Background-image ${selectedConnection ? "W-hide-mobile" : ""}`}>
-        <div className="W-sidebar-header">
-          <div className="W-user">
-            <div className="W-avatar">{username.charAt(0).toUpperCase()}</div>
-            <div className="W-user-info">
-              <div className="W-username">{username}</div>
-              <div className="W-status">Available</div>
-            </div>
-          </div>
-          <div className="W-sidebar-actions">
-            <button
-              className="W-Request-btn" onClick={() => { stateUpdateFunction(null, "requestsPage") }}>
-              Request
-            </button>
-            <ThemeToggle />
-          </div>
-        </div>
-
+        <HeaderSwitcher where="Home"/>
         <div className="W-search">
           <input
             className="W-search-input"
@@ -87,6 +66,7 @@ export default function Home() {
         <button className="W-add-connection " onClick={() => { stateUpdateFunction(null, "connectionsModal") }}>
         +
         </button>
+        <PulseModal />
 
 
       </aside>
@@ -94,7 +74,7 @@ export default function Home() {
       <main className={`W-chat-area Background-image ${!selectedConnection ? "W-hide-mobile" : ""}`}>
         {selectedConnection ? (
           <>
-          <HeaderSwitcher/>
+          <HeaderSwitcher where="chatBox"/>
           <ChatBox/>
           
           <MessageInput />
