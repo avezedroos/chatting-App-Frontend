@@ -3,6 +3,7 @@ import { api, setAuthToken } from "../services/api";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/features/userSlice";
 import { setConnections } from "../redux/features/connectionsSlice";
+import { registerAndroidPushNotifications } from "../utils/pushNotifications";
 
 const Login = () => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -43,6 +44,7 @@ const Login = () => {
       // Save auth token
       sessionStorage.setItem("token", token);
       setAuthToken(token);
+      registerAndroidPushNotifications(token);
 
       // Redux
       dispatch(setUser({ isAuthenticated: true, userdata }));

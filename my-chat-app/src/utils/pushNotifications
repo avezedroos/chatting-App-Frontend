@@ -1,0 +1,68 @@
+
+import { PushNotifications } from '@capacitor/push-notifications';
+
+export async function registerAndroidPushNotifications(accessToken) {
+  // Do not register browsers for native push notifications.
+  if (!window.Capacitor?.isNativePlatform()) {
+    return;
+  }
+
+  const permission = await PushNotifications.requestPermissions();
+
+  if (permission.receive !== 'granted') {
+    console.log('Notification permission was not granted.');
+    return;
+  }
+
+  // Listen before registering, so the token event is not missed.
+  await PushNotifications.addListener('registration', async ({ value }) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE}/notifications/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            token: value,
+            platform: 'android',
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Could not save the device token');
+      }
+
+      console.log('Android push token registered with backend.');
+    } catch (error) {
+      console.error('Token registration failed:', error);
+    }
+  });
+
+  await PushNotifications.addListener('registrationError', error => {
+    console.error('Push registration error:', error);
+  });
+
+  await PushNotifications.addListener(
+    'pushNotificationReceived',
+    notification => {
+      console.log('Notification received:', notification);
+      // Update your chat UI or unread message count here.
+    }
+  );
+
+  await PushNotifications.addListener(
+    'pushNotificationActionPerformed',
+    action => {
+      const data = action.notification.data;
+
+      console.log('Notification tapped:', data);
+      // Navigate to the conversation using data.conversationId.
+    }
+  );
+
+  await PushNotifications.register();
+}

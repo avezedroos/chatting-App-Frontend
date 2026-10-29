@@ -58,3 +58,30 @@ Desktop.ini
 .cache/
 .eslintcache
 vite.config.ts.timestamp*
+
+
+# Capacitor generated build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/app/debug/
+
+# Android local machine configuration
+android/local.properties
+android/.idea/
+android/captures/
+
+# Gradle cache and generated files
+android/.kotlin/
+android/**/intermediates/
+android/**/outputs/
+android/**/tmp/
+
+# Temporary files
+*.tmp
+*.swp
+
+# Android native project — keep local, don't commit
+android/
+capacitor.config.json
