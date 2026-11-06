@@ -197,9 +197,13 @@ const MessageList = () => {
 
       const left = elRect.left - parentRect.left + parent.scrollLeft;
 
+       // Space available below the message
+  const bottom = parentRect.bottom - elRect.bottom;
+
       setEmojiPosition({
         top,
         left: left - 20,
+        bottom,
       });
     }
   };

@@ -4,7 +4,10 @@ import { resetUI, setSelectedMessage, setSelectionMode } from "../../redux/featu
 import { copyMessages } from "../../utils/copyMessages";
 import { selectMessagesByUser } from "../../redux/features/messagesSelectors";
 import { getMessageById } from "../../utils/minifunctions";
-// import { a } from "framer-motion/client";
+import {  FiTrash2 } from "react-icons/fi";
+import {  FaRegCopy } from "react-icons/fa";
+import {  BsPinAngle,  } from "react-icons/bs";
+import { CgMoreVertical } from "react-icons/cg";
 
 const ActionHeader = ({
   onPin = () => { },
@@ -57,7 +60,7 @@ const ActionHeader = ({
     >
       {/* BACK BUTTON */}
       <button
-        className="center ms-1 me-2"
+        className="center ms-1 me-2 "
         onClick={onBack}
         style={{
           fontSize: "30px",
@@ -84,47 +87,48 @@ const ActionHeader = ({
 
       {/* RIGHT SIDE ICONS */}
       <div
-        className="ms-auto d-flex align-items-center px-3"
-        style={{ gap: "10px", border: "1px solid black", borderRadius: "30px",background: "var( --primary-btn-bg)" }}
+        className="ms-auto d-flex align-items-center px-3 py-0 icon-groups"
+        
       >
         {/* COPY BUTTON */}
         <div
           className="btn p-0"
           onClick={() => onCopy()}
-          style={{ fontSize: "20px" }}
+          style={{ fontSize: "20px" ,}}
           title="Copy"
         >
-          📋
+          <  FaRegCopy />
         </div>
 
         {/* PIN BUTTON */}
         <div
           className="btn p-0"
           onClick={onPin}
-          style={{ fontSize: "20px" }}
+          style={{ fontSize: "24px" }}
           title="Pin"
         >
-          📌
+< BsPinAngle />
         </div>
 
         {/* DELETE BUTTON */}
         <div
-          className="btn p-0"
+          className=" p-0 btn" 
           onClick={onDelete}
-          style={{ fontSize: "20px", color: "#ff4f4f" }}
+          style={{ fontSize: "20px", }}
           title="Delete"
         >
-          🗑
+         <FiTrash2 />
         </div>
 
         {/* MORE OPTIONS */}
         <div
           className="btn p-0 me-2"
           onClick={onMore}
-          style={{ fontSize: "30px", color: "var(--primary-text-color)" }}
+          style={{ fontSize: "20px", }}
           title="More"
         >
-          ⋮
+          <CgMoreVertical />
+
         </div>
       </div>
     </div>

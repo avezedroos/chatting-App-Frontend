@@ -21,7 +21,7 @@
 
 .W-hide-mobile {
   display: block;
-  
+
 }
 
 /* Sidebar header */
@@ -58,7 +58,7 @@
 
 .W-user-info .W-status {
   font-size: 12px;
-  color: var( --secondary-text-color);
+  color: var(--secondary-text-color);
 }
 
 /* Search */
@@ -72,7 +72,7 @@
   border-radius: 10px;
   border: none;
   outline: none;
-  background: var( --primary-highlight-color);
+  background: var(--primary-highlight-color);
   color: #fff;
   font-size: 14px;
 }
@@ -109,7 +109,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var( --primary-highlight-color);
+  background: var(--primary-highlight-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,6 +165,7 @@
     width: 100%;
     max-width: none;
     min-width: 0;
+    border-right: 0px;
   }
 }
 
@@ -189,7 +190,7 @@
   padding: 10px 16px;
   border-bottom: var(--secondary-border);
   background: var(--chat-box-header-bg);
-  border-radius: 0px 0px 12px 12px ;
+  border-radius: 0px 0px 12px 12px;
   /* color:#5E514B; */
   position: sticky;
   right: 0px;
@@ -211,11 +212,11 @@
   color: var(--primary-text-color);
   font-size: 30px;
   cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 6px;
-    font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  font-weight: 700;
 }
 
 .W-chat-avatar {
@@ -240,10 +241,11 @@
 
 .W-chat-meta .W-chat-sub {
   font-size: 13px;
-   color:var(--primary-text-color);
+  color: var(--primary-text-color);
 }
-.W-online{
- 
+
+.W-online {
+
   font-weight: bolder;
 }
 
@@ -314,11 +316,11 @@
   /* FIXED */
   height: auto;
   /* allow reply + input */
-  min-height: 40px;
+  /* min-height: 40px; */
   /* normal height */
   padding: 5px;
   /* inner spacing */
-/* background-color: #fff9f9; */
+  /* background-color: #fff9f9; */
   display: flex;
   /* align-items: center; */
   flex-direction: column;
@@ -583,13 +585,14 @@
   opacity: 0.8;
 }
 
-.MR-filter-wrapper{
-border-radius: 50px;
-  padding: 0.5rem 1rem ;
+.MR-filter-wrapper {
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
   background: var(--primary-highlight-color);
   color: var(--primary-text-color);
   cursor: pointer;
 }
+
 .MR-filter {
   border: none;
   outline: none;
@@ -597,8 +600,10 @@ border-radius: 50px;
   background: transparent;
   font-weight: bold;
   appearance: none;
-  -webkit-appearance: none; /* Chrome, Safari */
-  -moz-appearance: none;    /* Firefox */
+  -webkit-appearance: none;
+  /* Chrome, Safari */
+  -moz-appearance: none;
+  /* Firefox */
   background-image: none;
 }
 
@@ -888,23 +893,16 @@ border-radius: 50px;
   -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
 
-.share-options{
+.share-options {
   background: var(--primary-btn-bg);
- 
-}
-.invite-modal-discription{
-  font-size: 0.8rem;
-  color:var(--primary-text-color);
 
-}
-.divder{
-  border:var(--primary-border)
 }
 
 
 
 .W-contact.W-selected {
-  background-color: rgba(0, 123, 255, 0.15); /* light blue */
+  background-color: rgba(0, 123, 255, 0.15);
+  /* light blue */
   border-left: 4px solid #0d6efd;
 }
 
@@ -912,16 +910,28 @@ border-radius: 50px;
   background-color: rgba(0, 123, 255, 0.22);
 }
 
-.icon-groups{
-   gap: 10px;
-    border: 1px solid black;
-    border-radius: 30px;
-   background: var( --primary-btn-bg) ;
-  }
+.icon-groups {
+  gap: 8px;
+  border: 1px solid var(--primary-text-color);
+  border-radius: 30px;
+  background: var(--invite-modal-bg);
+  /* background: #30203e ; */
+  padding-top: 2px;
+  padding-bottom: 2px;
+  /* color:red ; */
+}
+
+.icon-groups .btn{
+  /* color: var(--invite-modal-accent); */
+  color: var(--primary-text-color);
+
+  font-size: 20px;
+}
 
 .no-caret::after {
   display: none !important;
 }
+
 /* Clean 3-dot button */
 .selection-action-btn {
   border: none;
@@ -1014,6 +1024,7 @@ border-radius: 50px;
     opacity: 0;
     transform: scale(0.9) translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1030,3 +1041,5 @@ border-radius: 50px;
     width: 100%;
   }
 }
+
+

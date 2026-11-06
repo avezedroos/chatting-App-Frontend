@@ -4,12 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSelectionMode } from "../../redux/features/uiSlice";
 import { useState } from "react";
 import { checkPinnedMode } from "../../utils/minifunctions";
-// import { MdPushPin, MdPushPinOutlined } from "react-icons/md";
 import { RiUnpinFill } from "react-icons/ri";
 import { pinConnectionThunk } from "../../redux/utils/pinConnectionThunk";
+import { BiArchiveOut } from "react-icons/bi";
+import {  BsPinAngleFill } from "react-icons/bs";
+import { CgMoreVertical } from "react-icons/cg";
 
 
-// import "./selectionHeader.css";
 
 export default function SelectionHeader({
   onArchive,
@@ -74,7 +75,7 @@ export default function SelectionHeader({
       </div>
 
       {/* RIGHT SECTION */}
-      <div className="icon-groups d-flex align-items-center px-3 py-1">
+      <div className="icon-groups d-flex align-items-center px-3">
 
         {/* Pin / Unpin */}
         <div
@@ -83,7 +84,7 @@ export default function SelectionHeader({
           title={isPinnedMode ? "Unpin Chat" : "Pin Chat"}
           style={{ fontSize: "20px" }}
         >
-          {isPinnedMode ?  "📌":<RiUnpinFill color="red"/>
+          {isPinnedMode ?  < BsPinAngleFill />:<RiUnpinFill/>
 }
         </div>
 
@@ -94,7 +95,7 @@ export default function SelectionHeader({
           title="Archive Chat"
           style={{ fontSize: "20px" }}
         >
-          🗄️
+          < BiArchiveOut/>
         </div>
 
       
@@ -104,9 +105,9 @@ export default function SelectionHeader({
     as="button"
     variant="light"
     className="selection-action-btn no-caret"
-    style={{ fontSize: "22px" }}
+    style={{ fontSize: "20px" }}
   >
-    ⋮
+    <CgMoreVertical />
   </Dropdown.Toggle>
 
   <Dropdown.Menu className="selection-dropdown" style={{background:'var(--primary-highlight-color)'}}>

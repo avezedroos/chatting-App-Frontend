@@ -184,7 +184,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="W-input-area" style={{marginBottom:`${isReplying?.id ? '30px' : '10px'}`}}>
+    <div className="W-input-area" style={{marginBottom:`${isReplying?.id ? '0px' : '0px'}`}}>
     <div className="h-100" >
 
       {/* ⭐ REPLY PREVIEW BOX */}

@@ -5,7 +5,7 @@ const emojis = ["❤️", "😂", "😮", "😢", "👍", "👎"];
 
 const EmojiReactionModal = ({ position, onSelect , direction}) => {
   if (!position) return null;
-const Xposition = direction === "left"? position.left:"-20px"
+const Xposition = direction === "left"? position.left +20:"-10px" 
 
   return (
     <div>
@@ -16,7 +16,7 @@ const Xposition = direction === "left"? position.left:"-20px"
       transition={{ duration: 0.2 }}
       style={{
         position: "absolute",
-        top: position.top,
+        top: position.bottom<50? position.top - 75  : position.top ,
         [direction]: Xposition,
         background: "var( --primary-btn-bg)",
         borderRadius: "30px",

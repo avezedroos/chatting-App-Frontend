@@ -4,9 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { startEdit, startReplying } from "../redux/features/uiSlice";
 import { copyMessages } from "../utils/copyMessages";
 import { canEditMessage } from "../utils/minifunctions";
-// import socketService from "../services/socketService";
 import { deleteMessagesForEveryone, deleteMessagesForMe } from "../utils/deleteMessages";
-// import { send } from "vite";
 
 
 const BASE_ACTIONS = [
@@ -19,6 +17,8 @@ const BASE_ACTIONS = [
 
 const MessageActionModal = ({ position, direction, selectedMessages, closeModal }) => {
   if (!position || !selectedMessages) return null;
+ 
+console.log("position",position)
 
   const dispatch = useDispatch();
   const username = useSelector((state) => state.user.username);
@@ -92,8 +92,8 @@ const MessageActionModal = ({ position, direction, selectedMessages, closeModal 
       transition={{ duration: 0.2 }}
       style={{
         position: "absolute",
-        top: position.top + offset,
-        [direction]: "-10px",
+        top: position.bottom<50? position.top -20 : position.top + offset,
+        [direction]: "0px",
         background: "var(--primary-btn-bg)",
         borderRadius: "16px",
         padding: "12px 16px",
