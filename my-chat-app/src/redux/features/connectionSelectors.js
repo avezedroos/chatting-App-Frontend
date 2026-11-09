@@ -8,7 +8,7 @@ const selectPinnedIds = (state) => state.userSettings.connection.pinnedConnectio
 export const selectOrderedConnections = createSelector(
   [selectConnections, selectPinnedIds],
   (connections, pinnedIds) => {
-    console.log("Selecting ordered connections with pinnedIds:", pinnedIds);
+    // console.log("Selecting ordered connections with pinnedIds:", pinnedIds);
     if (!connections?.length) return [];
 
     if (!pinnedIds?.length) return connections;
@@ -28,4 +28,12 @@ export const selectOrderedConnections = createSelector(
     // 3️⃣ Final UI order
     return [...pinnedConnections, ...unpinnedConnections];
   }
+);
+
+
+export const selectPinnedMessageIds = createSelector(
+  [
+    (state) => state.connections.selectedConnection?.pin || [],
+  ],
+  (pins) => new Set(pins.map((pin) => String(pin.msgId)))
 );

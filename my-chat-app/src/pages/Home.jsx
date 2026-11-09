@@ -12,9 +12,10 @@ import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
 import MessageInput from "../components/MessageInput";
 import HeaderSwitcher from "../components/Headers/HeaderSwitcher";
 import PulseModal from "../modals/PulseModal";
+import PinMessageModal from "../modals/PinMessageModal";
 
 export default function Home() {
-  console.log("Rendering Home");
+  
   //redux state
   const { username } = useSelector((state) => state.user);
   const selectedConnection = useSelector((state) => state.connections.selectedConnection);
@@ -22,7 +23,7 @@ export default function Home() {
   //local State
   const [connectionsModalOpen, setConnectionsModalOpen] = useState(false);
 
-  useWhyRender("Home",null, { connectionsModalOpen, selectedConnection, username });
+  // useWhyRender("Home",null, { connectionsModalOpen, selectedConnection, username });
   const navigate = useNavigate(); // for navigation
   const dispatch = useDispatch(); // to dispatch actions if needed
 
@@ -47,6 +48,7 @@ export default function Home() {
     }
   }
 
+  // console.log("selectedConnection",selectedConnection)
 
   return (
     <div className="W-app">
@@ -75,6 +77,7 @@ export default function Home() {
         {selectedConnection ? (
           <>
           <HeaderSwitcher where="chatBox"/>
+        {selectedConnection?.pin?.length>0 && <PinMessageModal data = {selectedConnection?.pin} otherUser ={selectedConnection.username}/>}
           <ChatBox/>
           
           <MessageInput />

@@ -1,6 +1,6 @@
 // socketEvents.js
 import { setTyping, setUserOffline, setUserOnline } from "../redux/features/chatMetaSlice";
-import { incrementUnread, updateLastMessage, updateOnlineStatusConnection } from "../redux/features/connectionsSlice";
+import { incrementUnread, pinMessage, unpinMessage, updateLastMessage, updateOnlineStatusConnection } from "../redux/features/connectionsSlice";
 import { addMessage, deleteForEveryoneReducer, editMessage } from "../redux/features/messagesSlice";
 import socketService from "./socketService";
 
@@ -20,11 +20,11 @@ const setupSocketEvents = (dispatch) => {
   socket.on("user-offline", (data) => {
     const { payload } = data;
     const { username, lastseen } = payload
-    console.log("user-offline " ,username, lastseen)
+    console.log("user-offline ", username, lastseen)
     dispatch(setUserOffline(username));
     dispatch(updateOnlineStatusConnection({ userId: username, online: false, lastseen: lastseen }));
   });
-  
+
 
   // ---- receive message ----
   socket.on("receive-message", (msg) => {
@@ -35,7 +35,7 @@ const setupSocketEvents = (dispatch) => {
     }
     payload.push(data)
     dispatch(addMessage({ "otherUser": msg.sender, msg }));
-    dispatch(incrementUnread({ username: msg.sender, message: msg.text, time: msg.timestamp ,msgId:msg._id }));
+    dispatch(incrementUnread({ username: msg.sender, message: msg.text, time: msg.timestamp, msgId: msg._id }));
     socket.emit("message-received", {
       payload
     });
@@ -66,23 +66,48 @@ const setupSocketEvents = (dispatch) => {
   );
 
   socket.on("messagesDeletedForEveryoneBulk", (data) => {
-     console.log("messagesDeletedForEveryoneBulk is running", data)
-    const {messageIds, sender,timestamp } = data;
+    console.log("messagesDeletedForEveryoneBulk is running", data)
+    const { messageIds, sender, timestamp } = data;
     dispatch(deleteForEveryoneReducer({ userName: sender, messageIds: messageIds }));
-    messageIds.forEach(id =>{
-       dispatch(updateLastMessage({
-      username: sender,
-      message: " this Message Deleted",
-      time: timestamp,
-      msgId: id,
-      match: true,
-    }));
+    messageIds.forEach(id => {
+      dispatch(updateLastMessage({
+        username: sender,
+        message: " this Message Deleted",
+        time: timestamp,
+        msgId: id,
+        match: true,
+      }));
     }
     );
 
-    
-  } 
+
+  }
   );
+
+  // ---- Pin Message updated ----
+   socket.on("pinMessageUpdated", (data) => {
+    console.log("Shared pin received:", data);
+    
+    dispatch(
+      pinMessage({
+        username: data.otherUser,
+        msgId: data.pin.msgId,
+        type: data.pin.type, // personal or shared
+        timestamp: data.pin.timestamp,
+      })
+    );
+  });
+
+  socket.on("unpinMessageUpdated", (data) => {
+  dispatch(
+              unpinMessage({
+                username: data.otherUser,
+                msgId: data.msgId
+              })
+            );
+});
+  
 };
+
 
 export default setupSocketEvents;

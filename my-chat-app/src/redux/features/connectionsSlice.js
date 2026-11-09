@@ -3,8 +3,55 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   connections: [],
-  filteredConnections: [], // optional
+  // filteredConnections: [], // optional
   selectedConnection: null,
+};
+
+const addPinToConnection = (conn, pinData) => {
+  // console.log("addPinToConnection is running",conn)
+  if (!conn) return;
+
+  if (!Array.isArray(conn.pin)) {
+    conn.pin = [];
+  }
+
+  // Prevent duplicate pins
+  if (conn.pin.some((p) => p.msgId === pinData.msgId)) {
+    return;
+  }
+
+  conn.pin.push({
+    msgId: pinData.msgId,
+    type: pinData.type,
+    timestamp: pinData.timestamp,
+    index: 0,
+  });
+
+  // Oldest message first
+  conn.pin.sort(
+    (a, b) =>
+      new Date(a.timestamp).getTime() -
+      new Date(b.timestamp).getTime()
+  );
+
+  // Recalculate indexes
+  conn.pin.forEach((pin, index) => {
+    pin.index = index;
+  });
+};
+
+const removePinFromConnection = (conn, msgId) => {
+  if (!conn || !Array.isArray(conn.pin)) return;
+
+  // Remove the selected message pin
+  conn.pin = conn.pin.filter(
+    (pin) => String(pin.msgId) !== String(msgId)
+  );
+
+  // Recalculate indexes
+  conn.pin.forEach((pin, index) => {
+    pin.index = index;
+  });
 };
 
 const connectionsSlice = createSlice({
@@ -26,66 +73,66 @@ const connectionsSlice = createSlice({
       if (conn) conn.status = status;
     },
 
-   updateLastMessage: (state, action) => {
-  const { username, message, time, msgId, match } = action.payload;
+    updateLastMessage: (state, action) => {
+      const { username, message, time, msgId, match } = action.payload;
 
-  const index = state.connections.findIndex(
-    (c) => c.username === username
-  );
+      const index = state.connections.findIndex(
+        (c) => c.username === username
+      );
 
-  if (index === -1) return;
+      if (index === -1) return;
 
-  const conn = state.connections[index];
+      const conn = state.connections[index];
 
-  // 🛡️ Safety check (keep your logic)
-  if (match && conn.lastMessage?.msgId !== msgId) {
-    return;
-  }
+      // 🛡️ Safety check (keep your logic)
+      if (match && conn.lastMessage?.msgId !== msgId) {
+        return;
+      }
 
-  // ✅ Update lastMessage
-  conn.lastMessage = {
-    ...conn.lastMessage,
-    message,
-    time,
-    msgId
-  };
+      // ✅ Update lastMessage
+      conn.lastMessage = {
+        ...conn.lastMessage,
+        message,
+        time,
+        msgId
+      };
 
-  // 🔥 DESCENDING ORDER LOGIC (move to top)
-  const [updatedConnection] = state.connections.splice(index, 1);
-  state.connections.unshift(updatedConnection);
-},
+      // 🔥 DESCENDING ORDER LOGIC (move to top)
+      const [updatedConnection] = state.connections.splice(index, 1);
+      state.connections.unshift(updatedConnection);
+    },
 
 
 
     incrementUnread: (state, action) => {
-  const { username, message, time, msgId } = action.payload;
-  console.log("incrementUnread is running", action.payload);
+      const { username, message, time, msgId } = action.payload;
+      console.log("incrementUnread is running", action.payload);
 
-  // 1️⃣ Find target connection
-  const idx = state.connections.findIndex(
-    (c) => c.username === username
-  );
-  if (idx === -1) return;
+      // 1️⃣ Find target connection
+      const idx = state.connections.findIndex(
+        (c) => c.username === username
+      );
+      if (idx === -1) return;
 
-  const conn = state.connections[idx];
+      const conn = state.connections[idx];
 
-  // 2️⃣ Update unread count
-  const unread = (conn.unread || 0) + 1;
+      // 2️⃣ Update unread count
+      const unread = (conn.unread || 0) + 1;
 
-  conn.unread = unread;
+      conn.unread = unread;
 
-  // 3️⃣ Update lastMessage (minimal update)
-  conn.lastMessage = {
-    ...conn.lastMessage,
-    message,
-    time,
-    msgId,
-  };
+      // 3️⃣ Update lastMessage (minimal update)
+      conn.lastMessage = {
+        ...conn.lastMessage,
+        message,
+        time,
+        msgId,
+      };
 
-  // 4️⃣ 🔥 DESCENDING ORDER LOGIC (move to top)
-  const [updatedConnection] = state.connections.splice(idx, 1);
-  state.connections.unshift(updatedConnection);
-},
+      // 4️⃣ 🔥 DESCENDING ORDER LOGIC (move to top)
+      const [updatedConnection] = state.connections.splice(idx, 1);
+      state.connections.unshift(updatedConnection);
+    },
 
     resetUnread: (state, action) => {
       const userId = action.payload;
@@ -110,12 +157,48 @@ const connectionsSlice = createSlice({
       if (conn) conn.notes = notes;
     },
 
-    filterConnections: (state, action) => {
-      const type = action.payload; // sent / received / pending / accepted
-      state.filteredConnections = state.connections.filter(
-        (c) => c.status === type || c.direction === type
-      );
-    },
+    pinMessage: (state, action) => {
+  const { username, msgId, type, timestamp } = action.payload;
+  console.log(action.payload)
+
+  // 1. Update main connections array
+  const connection = state.connections.find(
+    (c) => c.username === username
+  );
+
+  addPinToConnection(connection, {
+    msgId,
+    type,
+    timestamp,
+  });
+
+  // 2. Update selected connection if it matches
+  if (state.selectedConnection?.username === username) {
+    addPinToConnection(state.selectedConnection, {
+      msgId,
+      type,
+      timestamp,
+    });
+  }
+
+  
+},
+
+unpinMessage: (state, action) => {
+  const { username, msgId } = action.payload;
+
+  // 1. Update main connections array
+  const connection = state.connections.find(
+    (c) => c.username === username
+  );
+
+  removePinFromConnection(connection, msgId);
+
+  // 2. Update selected connection if it matches
+  if (state.selectedConnection?.username === username) {
+    removePinFromConnection(state.selectedConnection, msgId);
+  }
+},
   },
 });
 
@@ -128,7 +211,8 @@ export const {
   resetUnread,
   updateOnlineStatusConnection,
   updateNotes,
-  filterConnections,
+  pinMessage,
+  unpinMessage
 } = connectionsSlice.actions;
 
 export default connectionsSlice.reducer;

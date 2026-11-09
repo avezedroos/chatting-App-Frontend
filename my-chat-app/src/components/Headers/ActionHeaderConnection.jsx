@@ -24,18 +24,19 @@ export default function SelectionHeader({
     const {selectedConnections} = useSelector((state) => state.ui);
     const {pinnedConnections} = useSelector((state) => state.userSettings.connection);
     const [isPinnedMode, setIsPinnedMode] = useState(false);
-    console.log("pined connections:",pinnedConnections);
+    // console.log("pined connections:",pinnedConnections);
 
     const onBack = () => {
       // Handle back action (e.g., exit selection mode)
       dispatch(setSelectionMode({where:"connections", value:false}));
     }
 
-    const onPinToggle = () => {
+    const onPinToggle = async () => {
       // Handle pin/unpin action
       
       dispatch(pinConnectionThunk(selectedConnections));
       // Further logic to pin/unpin the selected connections
+     
 
     }
 

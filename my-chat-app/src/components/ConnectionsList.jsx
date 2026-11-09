@@ -6,6 +6,7 @@ import { formatTimestamp } from "../utils/minifunctions";
 import useLongPressForConnectionList from "../hooks/useLongPressForConnectionList";
 import { setSelectedMessage, setSelectionMode } from "../redux/features/uiSlice";
 import { selectOrderedConnections } from "../redux/features/connectionSelectors";
+import { BsPinAngleFill } from "react-icons/bs";
 
 
 
@@ -16,7 +17,7 @@ export default function ConnectionsList() {
   // Redux State
   // const { connections } = useSelector((state) => state.connections);
   const connections = useSelector(selectOrderedConnections);
-  console.log("Ordered connections:", connections);
+  // console.log("Ordered connections:", connections);
   const selectedConnection = useSelector((state) => state.connections.selectedConnection);
   const { onlineUsers , typing} = useSelector((state) => state.chatMeta);
   const {connectionSelectionMode} = useSelector((state) => state.ui);
@@ -144,7 +145,7 @@ export default function ConnectionsList() {
           <div className="W-contact-right">
             <div className="W-contact-time">{formatTimestamp(c.lastMessage.time)}</div>
             {c.unread > 0 && <div className="W-unread">{c.unread}</div>}
-            {pinnedConnections.includes(c.userId) && <div className="W-pinned">📌</div>}
+            {pinnedConnections.includes(c.userId) && <div className="W-pinned"><BsPinAngleFill/></div>}
           </div>
         </div>
       ))}

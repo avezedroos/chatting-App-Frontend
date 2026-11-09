@@ -24,6 +24,9 @@
 
 }
 
+/* ---------- #Headers Style Start here ------ */
+
+
 /* Sidebar header */
 .W-sidebar-header {
   padding: 16px;
@@ -254,9 +257,24 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
+.chat-action-header {
+  background: var(--chat-box-header-bg);
+  border-bottom: 1px solid rgba(229, 229, 229, 0.813);
+  border-radius: 0px 0px 10px 10px;
+  position: sticky;
+  right: 0px;
+  top: 0px;
+  z-index: 10000;
+  height: 60px;
+  padding: 10px;
+  width: 100%;
+}
 
 @media (min-width: 768px) {
   .W-chat-header {
+    position: static;
+  }
+  .chat-action-header{
     position: static;
   }
 }
@@ -921,7 +939,7 @@
   /* color:red ; */
 }
 
-.icon-groups .btn{
+.icon-groups .btn {
   /* color: var(--invite-modal-accent); */
   color: var(--primary-text-color);
 
@@ -1042,4 +1060,66 @@
   }
 }
 
+.pin-modal {
+  width: 100%;
+  background-color: var(--chat-box-header-bg);
+  overflow: hidden;
+  position: sticky;
+  top: 60px;
+  left: 0px;
+  z-index: 999;
+  padding: 3px 10px 3px 15px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid rgba(229, 229, 229, 0.81);
 
+}
+
+.pin-modal svg {
+  /* background-color: #5f5f5f; */
+  /* border: 1px solid white; */
+  padding: 1px;
+  border-radius: 3px;
+  /* color: white; */
+}
+
+
+.pin-modal-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px;
+}
+
+.pin-indicator {
+  width: 4px;
+  height: 5px;
+  border-radius: 10px;
+  background: var(--secondary-text-color);
+  opacity: 0.4;
+  transition: all 0.25s ease;
+}
+
+.pin-indicator.active {
+  height: 10px;
+  opacity: 1;
+  background: #8b35e8;
+}
+
+.message-highlight {
+  animation: messageHighlightFade 2s ease-out forwards;
+}
+
+@keyframes messageHighlightFade {
+  0% {
+    background-color: var(--selected-message-color);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}

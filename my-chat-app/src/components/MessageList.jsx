@@ -7,7 +7,10 @@ import { addEmojiReaction } from "../redux/features/messagesSlice";
 import socketService from "../services/socketService";
 import MessageActionModal from "../modals/MessageActionModal";
 import { getMessageById } from "../utils/minifunctions";
-import { setSelectedMessage, setSelectionMode, startReplying } from "../redux/features/uiSlice";
+import { setscrollId, setSelectedMessage, setSelectionMode, startReplying } from "../redux/features/uiSlice";
+import PinMessageModal from "../modals/PinMessageModal";
+import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
+import { selectPinnedMessageIds } from "../redux/features/connectionSelectors";
 // 📌 Format date into "Today", "Yesterday", "DD/MM/YYYY"
 const formatDayLabel = (timestamp) => {
   const date = new Date(timestamp);
@@ -43,7 +46,10 @@ const MessageList = () => {
   const messages = useSelector((state) => selectMessagesByUser(state, otherUser));
   const selectionMode = useSelector((state) => state.ui.chatBoxSelectionMode);
   const selectedMessages = useSelector((state) => state.ui.selectedMessage) ;
+  const scrollId = useSelector((state) => state.ui.scrollId) ;
+  // const pinMassages = useSelector((state) =>state.connections.selectedConnection?.pin
 // States
+  const pinnedMessageIds = useSelector(selectPinnedMessageIds);
   
   const [emojiPosition, setEmojiPosition] = useState(null);
   const [direction, setDirection] = useState("left");
@@ -61,6 +67,42 @@ const MessageList = () => {
     (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
   );
 
+
+
+const scrollToMessage = (messageId) => {
+  const element = messageRefs.current[messageId];
+
+  if (!element) {
+    // console.log("Message not found:", messageId);
+    return;
+  }
+
+  element.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  // Highlight effect
+ element.parentElement?.classList.add("message-highlight");
+
+  setTimeout(() => {
+    element.parentElement?.classList.remove("message-highlight");
+  }, 2000);
+};
+
+useEffect(()=>{
+if (scrollId){
+  scrollToMessage(scrollId);
+   dispatch(setscrollId(null))
+}
+},[scrollId]);
+
+
+
+const replyToscroll =(m)=>{
+console.log("m",m)
+scrollToMessage(m._id)
+}
   // 🔄 Receive emoji updates
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -385,6 +427,7 @@ const unifiedTouchEnd = (e, msg) => {
   };
 
 
+
   useEffect(() => {
     
     if (!(selectedMessages.length === 1 && emojiPosition)) return;
@@ -407,9 +450,13 @@ const unifiedTouchEnd = (e, msg) => {
 
   return (
     <div ref={containerRef} style={{ position: "relative"}}>
+    
+
       {sortedMessages.map((m) => {
         const id = m._id || m.tempId;
         const isSent = m.sender === currentUser;
+        const isPinned=pinnedMessageIds.has(String(m._id));
+        // const isPin = m.pin;
 
         const isDeletedForUser = m.deletedFor?.includes(currentUser);
         const isDeletedForEveryone = m.isDeletedForEveryone;
@@ -488,6 +535,7 @@ const unifiedTouchEnd = (e, msg) => {
                   <div
                     className="border-start ps-1 my-1"
                     style={{ fontSize: "0.8rem", color: "#555",userSelect: "none" }}
+                    onClick={()=>replyToscroll(m.replyTo)}
                   >
                     {m.replyTo.text || "previous message"}
                   </div>
@@ -525,6 +573,7 @@ const unifiedTouchEnd = (e, msg) => {
                   className="d-flex align-items-center gap-2 mt-1"
                   style={{ fontSize: "0.75rem", color: "#666" }}
                 >
+                  {isPinned && <BsPinAngleFill/>}
                   <div style={{ userSelect: "none" }}>
                     {new Date(m.timestamp).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -572,7 +621,6 @@ const unifiedTouchEnd = (e, msg) => {
 
       )}
   {/* {actionheader &&<div className="overlay" onClick={(e) => e.stopPropagation()} ></div>} */}
-
     </div>
   );
 };

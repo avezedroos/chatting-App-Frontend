@@ -26,6 +26,7 @@ const initialState = {
     title: "",
     message: "",
   },
+  scrollId:null,
 };
 
 const uiSlice = createSlice({
@@ -103,6 +104,9 @@ const uiSlice = createSlice({
       state.isScreenVisible = action.payload;
     },
 
+    setscrollId: (state,action)=>{
+      state.scrollId= action.payload;
+    },
     // -----------------------------
     // 🟢 Selected message for modals
     // -----------------------------
@@ -165,6 +169,7 @@ export const {
   setIsScreenVisible,
   setSelectionMode,
   setPulseModal,
+  setscrollId,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

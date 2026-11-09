@@ -37,7 +37,7 @@ const Login = () => {
       };
 
       const res = await api.post(`/auth/${endpoint}`, payload);
-
+      // console.log(`/auth/${endpoint}`,res)
       // Data from server
       const { token, userdata } = res.data;
 

@@ -18,7 +18,7 @@ const BASE_ACTIONS = [
 const MessageActionModal = ({ position, direction, selectedMessages, closeModal }) => {
   if (!position || !selectedMessages) return null;
  
-console.log("position",position)
+// console.log("position",position)
 
   const dispatch = useDispatch();
   const username = useSelector((state) => state.user.username);

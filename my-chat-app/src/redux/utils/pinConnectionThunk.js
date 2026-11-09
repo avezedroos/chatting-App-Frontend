@@ -1,5 +1,8 @@
+
 import { setPulseModal } from "../features/uiSlice";
 import { updatePinnedConnections } from "../features/userSettingsSlice";
+
+import { api } from "../../services/api";
 
 /**
  * Handles pin / unpin logic for connections
@@ -8,27 +11,63 @@ import { updatePinnedConnections } from "../features/userSettingsSlice";
  * - Latest pin goes to top
  * - Already pinned IDs are unpinned
  */
-export const pinConnectionThunk = (incomingIds) => (dispatch, getState) => {
-const existingIds =
-  getState()?.userSettings?.connection?.pinnedConnections ?? [];
 
-    const result = handlePinConnection(existingIds, incomingIds)
+export const pinConnectionThunk = (incomingIds) => async (dispatch, getState) => {
 
-  if (result.error) {
-    // dispatch(setPulseModal(result.error))
+  // Store original state before optimistic update
+  const previousIds = [
+    ...(getState()?.userSettings?.connection?.pinnedConnections ?? [])
+  ];
+
+  try {
+    // 1. Get existing pins
+    const existingIds = previousIds;
+
+    // 2. Validate pin/unpin logic
+    const result = handlePinConnection(existingIds, incomingIds);
+
+    if (result.error) {
+      dispatch(setPulseModal({
+        show: true,
+        type: "warning",
+        title: "Pin Connections",
+        message: getPinErrorMessage(result.error),
+      }));
+      return;
+    }
+
+    // 3. Optimistic update (Instant UI update)
+    dispatch(updatePinnedConnections(result.ids));
+// console.log("result.ids",result.ids)
+// console.log("incomingIds",incomingIds)
+
+    // 4. Backend API request
+    const res = await api.put(
+      "/userSettings/pinConnectionToggle",
+      { incomingIds:incomingIds }
+    );
+
+    // 5. Check backend response
+    if (res.data.success) {
+      // Sync with backend response
+      dispatch(updatePinnedConnections(res.data.pinnedConnections));
+      return;
+    }
+
+  } catch (error) {
+
+    // 7. Rollback if API request fails
+    dispatch(updatePinnedConnections(previousIds));
+    // console.error("Pin update failed:", error);
     dispatch(setPulseModal({
-          show: true,
-          type: "warning",
-          title: "Pin Connections",
-          message: getPinErrorMessage(result.error),
-        }));
-    return
+      show: true,
+      type: "warning",
+      title: "Pin Connections",
+      message: error.response?.data?.message || "Unable to update pins.",
+    }));
   }
+};
 
-  dispatch(updatePinnedConnections(result.ids))
-  // you can call here any api to update on backend if required #API
-
-}
 
  function handlePinConnection(existingIds = [], incomingIds = []) {
   if (!Array.isArray(incomingIds) || incomingIds.length === 0) {
