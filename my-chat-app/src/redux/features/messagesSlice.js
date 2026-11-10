@@ -54,6 +54,19 @@ const messagesSlice = createSlice({
     },
 
     // --------------------------------------------------------
+// Remove temp message (when ack failed)
+// --------------------------------------------------------
+removeTempMessage: (state, action) => {
+  const { userId, tempId } = action.payload;
+
+  const msgs = state.messagesByUser[userId];
+  if (!msgs) return;
+
+  state.messagesByUser[userId] = msgs.filter(
+    (m) => m.tempId !== tempId
+  );
+},
+    // --------------------------------------------------------
     // 5️⃣ Global status updates (Delivered / Read)
     // Optimized + based on user's logic
     // --------------------------------------------------------
@@ -257,7 +270,8 @@ export const {
   deleteMessageforMe,
   deleteForEveryoneReducer,
   clearMessagesForUser,
-  addEmojiReaction
+  addEmojiReaction,
+  removeTempMessage
 } = messagesSlice.actions;
 
 export default messagesSlice.reducer;

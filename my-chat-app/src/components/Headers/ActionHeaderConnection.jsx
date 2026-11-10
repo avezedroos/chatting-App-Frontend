@@ -3,12 +3,14 @@ import { Dropdown } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectionMode } from "../../redux/features/uiSlice";
 import { useState } from "react";
-import { checkPinnedMode } from "../../utils/minifunctions";
+import { checkBlockedUser, checkPinnedMode } from "../../utils/minifunctions";
 import { RiUnpinFill } from "react-icons/ri";
 import { pinConnectionThunk } from "../../redux/utils/pinConnectionThunk";
 import { BiArchiveOut } from "react-icons/bi";
-import {  BsPinAngleFill } from "react-icons/bs";
+import { BsPinAngleFill } from "react-icons/bs";
 import { CgMoreVertical } from "react-icons/cg";
+import { removeBlockedUser, updateBlockUser } from "../../redux/features/userSettingsSlice";
+import { api } from "../../services/api";
 
 
 
@@ -16,38 +18,74 @@ export default function SelectionHeader({
   onArchive,
   onClearChat,
   onDeleteChat,
-  onBlockUser,
   onReportUser,
   onAutoDelete,
 }) {
-    const dispatch = useDispatch();
-    const {selectedConnections} = useSelector((state) => state.ui);
-    const {pinnedConnections} = useSelector((state) => state.userSettings.connection);
-    const [isPinnedMode, setIsPinnedMode] = useState(false);
-    // console.log("pined connections:",pinnedConnections);
+  const dispatch = useDispatch();
+  const { selectedConnections } = useSelector((state) => state.ui);
+  const { pinnedConnections } = useSelector((state) => state.userSettings.connection);
+  const { blockedUsers } = useSelector((state) => state.userSettings.privacy);
 
-    const onBack = () => {
-      // Handle back action (e.g., exit selection mode)
-      dispatch(setSelectionMode({where:"connections", value:false}));
+  const [isPinnedMode, setIsPinnedMode] = useState(false);
+  const [blockMode, setBlockMode] = useState(true);
+  console.log("blockMode", blockMode)
+
+  const onBack = () => {
+    dispatch(setSelectionMode({ where: "connections", value: false }));
+  }
+
+  const onPinToggle = async () => {
+    // Handle pin/unpin action
+    dispatch(pinConnectionThunk(selectedConnections));
+  }
+
+  const onBlockToggle = async () => {
+    if (selectedConnections.length > 1 || selectedConnections.length < 1) {
+      return
     }
 
-    const onPinToggle = async () => {
-      // Handle pin/unpin action
-      
-      dispatch(pinConnectionThunk(selectedConnections));
-      // Further logic to pin/unpin the selected connections
-     
+    if (blockMode) {
+      const response = await api.patch("/userSettings/block", { userId: selectedConnections[0] });
+      console.log("response",response)
+      if (response.data.success) {
+        console.log(response.blockedUsers)
+        dispatch(
+          updateBlockUser({
+            id: selectedConnections[0],
+            timestamp: Date.now(),
+          })
+        );
+      }
+
+
+    } else {
+      const response = await api.patch("/userSettings/unblock", { userId: selectedConnections[0] });
+      if (response.data.success) {
+        console.log("response",response)
+        dispatch(
+          removeBlockedUser({
+            id: selectedConnections[0],
+          })
+        );
+      }
 
     }
+  }
 
-    useEffect(() => {
-  checkPinnedMode(selectedConnections, pinnedConnections, setIsPinnedMode);
-}, [selectedConnections, pinnedConnections]);
+  // console.log(blockedUsers, selectedConnections, blockMode)
+
+  useEffect(() => {
+    checkPinnedMode(selectedConnections, pinnedConnections, setIsPinnedMode);
+  }, [selectedConnections, pinnedConnections]);
+
+  useEffect(() => {
+    checkBlockedUser(blockedUsers, selectedConnections, setBlockMode)
+  }, [selectedConnections, blockedUsers])
 
 
   return (
     <div className="W-sidebar-header d-flex align-items-center justify-content-between py-2 px-2 px-md-3">
-      
+
       {/* LEFT SECTION */}
       <div className="d-flex align-items-center">
         {/* Back Button */}
@@ -56,22 +94,22 @@ export default function SelectionHeader({
           onClick={onBack}
           style={{
             fontSize: "30px",
-          height: "80%",
-          aspectRatio: "1/1",
-          fontWeight: "bold",
-          borderRadius: "8px",
-          background: "transparent",
-          border: "none",
-          color: "var(--primary-text-color)",
-          cursor: "pointer",
+            height: "80%",
+            aspectRatio: "1/1",
+            fontWeight: "bold",
+            borderRadius: "8px",
+            background: "transparent",
+            border: "none",
+            color: "var(--primary-text-color)",
+            cursor: "pointer",
           }}
         >
           ←
         </div>
 
         {/* Selected Counter */}
-        <span className="fs-3 fw-semibold ms-2" style={{color:'var(--primary-text-color)'}}>
-         {selectedConnections.length}
+        <span className="fs-3 fw-semibold ms-2" style={{ color: 'var(--primary-text-color)' }}>
+          {selectedConnections.length}
         </span>
       </div>
 
@@ -85,8 +123,8 @@ export default function SelectionHeader({
           title={isPinnedMode ? "Unpin Chat" : "Pin Chat"}
           style={{ fontSize: "20px" }}
         >
-          {isPinnedMode ?  < BsPinAngleFill />:<RiUnpinFill/>
-}
+          {isPinnedMode ? < BsPinAngleFill /> : <RiUnpinFill />
+          }
         </div>
 
         {/* Archive */}
@@ -96,47 +134,47 @@ export default function SelectionHeader({
           title="Archive Chat"
           style={{ fontSize: "20px" }}
         >
-          < BiArchiveOut/>
+          < BiArchiveOut />
         </div>
 
-      
+
         {/* 3-Dots Dropdown */}
-<Dropdown align="end">
-  <Dropdown.Toggle
-    as="button"
-    variant="light"
-    className="selection-action-btn no-caret"
-    style={{ fontSize: "20px" }}
-  >
-    <CgMoreVertical />
-  </Dropdown.Toggle>
+        <Dropdown align="end">
+          <Dropdown.Toggle
+            as="button"
+            variant="light"
+            className="selection-action-btn no-caret"
+            style={{ fontSize: "20px" }}
+          >
+            <CgMoreVertical />
+          </Dropdown.Toggle>
 
-  <Dropdown.Menu className="selection-dropdown" style={{background:'var(--primary-highlight-color)'}}>
-    <Dropdown.Item onClick={onClearChat}>
-      Clear Chat
-    </Dropdown.Item>
+          <Dropdown.Menu className="selection-dropdown header-dropdown" style={{ background: 'var(--invite-modal-bg)' }}>
+            <Dropdown.Item onClick={onClearChat}>
+              Clear Chat
+            </Dropdown.Item>
 
-    <Dropdown.Divider />
+            <Dropdown.Divider />
 
-    <Dropdown.Item onClick={onDeleteChat} className="text-danger">
-      Delete Chat
-    </Dropdown.Item>
+            <Dropdown.Item onClick={onDeleteChat}>
+              Delete Chat
+            </Dropdown.Item>
 
-    <Dropdown.Item onClick={onAutoDelete}>
-      Auto Delete Chat
-    </Dropdown.Item>
+            <Dropdown.Item onClick={onAutoDelete}>
+              Auto Delete Chat
+            </Dropdown.Item>
 
-    <Dropdown.Divider />
+            <Dropdown.Divider />
 
-    <Dropdown.Item onClick={onBlockUser} className="text-danger">
-      Block User
-    </Dropdown.Item>
+            {selectedConnections.length === 1 && <Dropdown.Item onClick={onBlockToggle}>
+              {blockMode ? "Block User" : "unBlock User"}
+            </Dropdown.Item>}
 
-    <Dropdown.Item onClick={onReportUser}>
-      Report User
-    </Dropdown.Item>
-  </Dropdown.Menu>
-</Dropdown>
+            {selectedConnections.length === 1 && <Dropdown.Item onClick={onReportUser}>
+              Report User
+            </Dropdown.Item>}
+          </Dropdown.Menu>
+        </Dropdown>
 
 
       </div>

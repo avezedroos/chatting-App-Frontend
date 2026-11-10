@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTempMessage, editMessage, replaceTempMessage } from "../redux/features/messagesSlice";
+import { addTempMessage, editMessage, removeTempMessage, replaceTempMessage } from "../redux/features/messagesSlice";
 import socketService from "../services/socketService";
-import { cancelEdit, stopReplying } from "../redux/features/uiSlice";
+import { cancelEdit, setPulseModal, stopReplying } from "../redux/features/uiSlice";
 import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
 import { updateLastMessage } from "../redux/features/connectionsSlice";
 
@@ -36,9 +36,13 @@ const MessageInput = () => {
       if (unsentQueueRef.current.length > 0) {
         unsentQueueRef.current.forEach((payload) => {
           socket.emit("send-message", payload, (ack) => {
+            console.log("ack",ack);
             if (ack?.ok && ack.serverId) {
               dispatch(replaceTempMessage({ userId: otherUser, tempId, newMessage: ack.data }));
-            }
+            }else if(!ack?.status){
+          console.log("i am running")
+         dispatch(removeTempMessage({userId: otherUser, tempId}));
+        }
           });
         });
 
@@ -81,6 +85,16 @@ const MessageInput = () => {
             msgId: ack.data._id,
             match: false,
           }));
+        } 
+        else if(!ack?.status){
+          console.log("i am running")
+         dispatch(removeTempMessage({userId: otherUser, tempId}));
+        dispatch(setPulseModal({
+                 show: true,
+                 type: "warning",
+                 title: "sending message",
+                 message: ack?.error,
+               }));
         } else {
           unsentQueueRef.current.push(payload);
         }

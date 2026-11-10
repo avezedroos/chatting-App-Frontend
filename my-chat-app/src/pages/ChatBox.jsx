@@ -8,6 +8,7 @@ import useAutoMarkRead from "../hooks/useAutoMarkRead";
 import "../styles/Chatbox.css";
 import { useDispatch, useSelector } from "react-redux";
 import {setMessagesForUser, updateStatusByUsers } from "../redux/features/messagesSlice";
+import PulseModal from "../modals/PulseModal";
 
 
 const ChatBox = () => {
@@ -80,6 +81,7 @@ const ChatBox = () => {
           <MessageList />
         </div>
       </div> 
+        <PulseModal/>
     </div>
   );
 };

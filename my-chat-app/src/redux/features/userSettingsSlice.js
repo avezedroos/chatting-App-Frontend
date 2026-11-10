@@ -61,18 +61,48 @@ const userSettingsSlice = createSlice({
   name: "userSettings",
   initialState,
   reducers: {
-
+hydrateUserSettings: (state, action) => {
+    hydrateState(state, action.payload);
+  },
     /**
      * 💬 CHAT / CONNECTIONS
      */
    updatePinnedConnections(state, action) {
     state.connection.pinnedConnections = action.payload
   },
+
+ updateBlockUser: (state, action) => {
+  const { id, timestamp } = action.payload;
+
+  const alreadyBlocked = state.privacy.blockedUsers.some(
+    (user) => user.id.toString() === id.toString()
+  );
+
+  if (alreadyBlocked) return;
+
+  state.privacy.blockedUsers.push({
+    id,
+    timestamp,
+  });
+},
+
+removeBlockedUser: (state, action) => {
+  const { id } = action.payload;
+
+  state.privacy.blockedUsers = state.privacy.blockedUsers.filter(
+    (user) => user.id.toString() !== id.toString()
+  );
+},
+
+
   },
 });
 
 export const {
+  hydrateUserSettings,
   updatePinnedConnections,
+  updateBlockUser,
+  removeBlockedUser,
 } = userSettingsSlice.actions;
 
 export default userSettingsSlice.reducer;

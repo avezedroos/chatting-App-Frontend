@@ -86,3 +86,25 @@ export const checkPinnedMode = (selectedConnections, pinnedConnections, setIsPin
   // RULE 2 + 3: none or mixed → PIN MODE
   setIsPinnedMode(true);
 };
+
+
+export const checkBlockedUser = (
+  blockedUsers,
+  selectedConnectionId,
+  setState
+) => {
+  if (!selectedConnectionId || selectedConnectionId.length !== 1) {
+    return;
+  }
+
+  const isBlocked = blockedUsers?.some(
+    (user) => user.id.toString() === selectedConnectionId[0].toString()
+  );
+  console.log(isBlocked)
+
+  if (isBlocked) {
+    setState(false);
+  }else{
+    setState(true);
+  }
+};

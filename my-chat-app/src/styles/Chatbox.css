@@ -1123,3 +1123,12 @@
     background-color: transparent;
   }
 }
+
+.header-dropdown a{
+/* background:var(--primary-highlight-color); */
+color:var( --invite-modal-label);
+}
+.header-dropdown hr{
+/* background:var(--primary-highlight-color); */
+border-color:var( --invite-modal-border);
+}

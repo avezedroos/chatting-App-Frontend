@@ -10,7 +10,7 @@ import ManageRequests from "./pages/ManageRequests";
 import { setConnections } from "./redux/features/connectionsSlice";
 import NotFound from "./pages/NotFound";
 import { detectAndSaveInviteToken } from "./utils/inviteHelper";
-import { updatePinnedConnections } from "./redux/features/userSettingsSlice";
+import { hydrateUserSettings, updatePinnedConnections } from "./redux/features/userSettingsSlice";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -27,8 +27,8 @@ const App = () => {
         // console.log("result",result.userdata.connections)
         dispatch(setUser({isAuthenticated:true, userdata: result.userdata }));
         dispatch(setConnections(result.userdata.connections || []));
-        // console.log(result.userdata)
-        dispatch(updatePinnedConnections(result.userdata.settings?.connection?.pinnedConnections));
+        dispatch(hydrateUserSettings(result.userdata.settings))
+        // dispatch(updatePinnedConnections(result.userdata.settings?.connection?.pinnedConnections));
       } else {
         dispatch(logoutUser());
       }
