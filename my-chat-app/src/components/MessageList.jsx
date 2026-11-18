@@ -11,6 +11,8 @@ import { setscrollId, setSelectedMessage, setSelectionMode, startReplying } from
 import PinMessageModal from "../modals/PinMessageModal";
 import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import { selectPinnedMessageIds } from "../redux/features/connectionSelectors";
+import { RiShareForwardLine } from "react-icons/ri";
+import EditMessageUI from "../modals/EditMessageUI";
 // 📌 Format date into "Today", "Yesterday", "DD/MM/YYYY"
 const formatDayLabel = (timestamp) => {
   const date = new Date(timestamp);
@@ -42,15 +44,15 @@ const MessageList = () => {
 
   // Redux state
   const currentUser = useSelector((state) => state.user.username);
-  const otherUser =useSelector((state) =>state.connections.selectedConnection?.username ||state.connections.selectedConnection?.name);
+  const otherUser = useSelector((state) => state.connections.selectedConnection?.username || state.connections.selectedConnection?.name);
   const messages = useSelector((state) => selectMessagesByUser(state, otherUser));
   const selectionMode = useSelector((state) => state.ui.chatBoxSelectionMode);
-  const selectedMessages = useSelector((state) => state.ui.selectedMessage) ;
-  const scrollId = useSelector((state) => state.ui.scrollId) ;
+  const selectedMessages = useSelector((state) => state.ui.selectedMessage);
+  const scrollId = useSelector((state) => state.ui.scrollId);
   // const pinMassages = useSelector((state) =>state.connections.selectedConnection?.pin
-// States
+  // States
   const pinnedMessageIds = useSelector(selectPinnedMessageIds);
-  
+
   const [emojiPosition, setEmojiPosition] = useState(null);
   const [direction, setDirection] = useState("left");
   const [directionX, setDirectionX] = useState(null);
@@ -62,47 +64,47 @@ const MessageList = () => {
   const containerRef = useRef(null);
   const docClickRef = useRef(null);
 
-// Sort messages by timestamp ascending
+  // Sort messages by timestamp ascending
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
   );
 
 
 
-const scrollToMessage = (messageId) => {
-  const element = messageRefs.current[messageId];
+  const scrollToMessage = (messageId) => {
+    const element = messageRefs.current[messageId];
 
-  if (!element) {
-    // console.log("Message not found:", messageId);
-    return;
+    if (!element) {
+      // console.log("Message not found:", messageId);
+      return;
+    }
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    // Highlight effect
+    element.parentElement?.classList.add("message-highlight");
+
+    setTimeout(() => {
+      element.parentElement?.classList.remove("message-highlight");
+    }, 2000);
+  };
+
+  useEffect(() => {
+    if (scrollId) {
+      scrollToMessage(scrollId);
+      dispatch(setscrollId(null))
+    }
+  }, [scrollId]);
+
+
+
+  const replyToscroll = (m) => {
+    console.log("m", m)
+    scrollToMessage(m._id)
   }
-
-  element.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-  });
-
-  // Highlight effect
- element.parentElement?.classList.add("message-highlight");
-
-  setTimeout(() => {
-    element.parentElement?.classList.remove("message-highlight");
-  }, 2000);
-};
-
-useEffect(()=>{
-if (scrollId){
-  scrollToMessage(scrollId);
-   dispatch(setscrollId(null))
-}
-},[scrollId]);
-
-
-
-const replyToscroll =(m)=>{
-console.log("m",m)
-scrollToMessage(m._id)
-}
   // 🔄 Receive emoji updates
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -222,8 +224,8 @@ scrollToMessage(m._id)
 
   // 🟣 Long Press
   const handleLongPress = (pressedId) => {
-    dispatch(setSelectedMessage({where:"messages", value:[pressedId]}));
-    dispatch(setSelectionMode({where:"chatBox", value:true}));
+    dispatch(setSelectedMessage({ where: "messages", value: [pressedId] }));
+    dispatch(setSelectionMode({ where: "chatBox", value: true }));
 
     const element = messageRefs.current[pressedId];
     const parent = containerRef.current;
@@ -239,8 +241,8 @@ scrollToMessage(m._id)
 
       const left = elRect.left - parentRect.left + parent.scrollLeft;
 
-       // Space available below the message
-  const bottom = parentRect.bottom - elRect.bottom;
+      // Space available below the message
+      const bottom = parentRect.bottom - elRect.bottom;
 
       setEmojiPosition({
         top,
@@ -256,13 +258,13 @@ scrollToMessage(m._id)
       if (selectedMessages.includes(clickedId)) {
         // Deselect
         const updated = selectedMessages.filter((id) => id !== clickedId);
-        dispatch(setSelectedMessage({where:"messages", value:updated}));
+        dispatch(setSelectedMessage({ where: "messages", value: updated }));
         if (updated.length === 0) {
           console.log("no message selected  so turning off selection mode")
-          dispatch(setSelectionMode({where:"chatBox", value:false}));
+          dispatch(setSelectionMode({ where: "chatBox", value: false }));
         }
       } else {
-        dispatch(setSelectedMessage({where:"messages", value:[...selectedMessages, clickedId]}));
+        dispatch(setSelectedMessage({ where: "messages", value: [...selectedMessages, clickedId] }));
         setEmojiPosition(null);
       }
     }
@@ -373,8 +375,8 @@ scrollToMessage(m._id)
   // Helper
   const resetUI = () => {
     console.log("resetUI is running")
-    dispatch(setSelectedMessage({where:"messages", value:[]}));
-    dispatch(setSelectionMode({where:"chatBox", value:false}));
+    dispatch(setSelectedMessage({ where: "messages", value: [] }));
+    dispatch(setSelectionMode({ where: "chatBox", value: false }));
     setEmojiPosition(null);
   };
 
@@ -385,32 +387,32 @@ scrollToMessage(m._id)
 
 
   const unifiedTouchStart = (e, msg) => {
-  if (selectionMode) return;
-  const id = msg._id || msg.tempId;
+    if (selectionMode) return;
+    const id = msg._id || msg.tempId;
 
-  longPressTimerRef.current = setTimeout(() => {
-    eventHandlers.onTouchStart?.({
-      ...e,
-      currentTarget: messageRefs.current[id],
-    });
-  }, 70);
+    longPressTimerRef.current = setTimeout(() => {
+      eventHandlers.onTouchStart?.({
+        ...e,
+        currentTarget: messageRefs.current[id],
+      });
+    }, 70);
 
-  handleTouchStart(e, msg);
-};
+    handleTouchStart(e, msg);
+  };
 
-const unifiedTouchMove = (e, msg) => {
-  if (selectionMode) return;
-  clearTimeout(longPressTimerRef.current);
-  eventHandlers.onTouchMove?.();
-  handleTouchMove(e, msg);
-};
+  const unifiedTouchMove = (e, msg) => {
+    if (selectionMode) return;
+    clearTimeout(longPressTimerRef.current);
+    eventHandlers.onTouchMove?.();
+    handleTouchMove(e, msg);
+  };
 
-const unifiedTouchEnd = (e, msg) => {
-  if (selectionMode) return;
-  clearTimeout(longPressTimerRef.current);
-  eventHandlers.onTouchEnd?.(e);
-  handleTouchEnd(e, msg);
-};
+  const unifiedTouchEnd = (e, msg) => {
+    if (selectionMode) return;
+    clearTimeout(longPressTimerRef.current);
+    eventHandlers.onTouchEnd?.(e);
+    handleTouchEnd(e, msg);
+  };
 
 
 
@@ -429,7 +431,7 @@ const unifiedTouchEnd = (e, msg) => {
 
 
   useEffect(() => {
-    
+
     if (!(selectedMessages.length === 1 && emojiPosition)) return;
     console.log("useEffect for outside click is running")
 
@@ -449,13 +451,13 @@ const unifiedTouchEnd = (e, msg) => {
 
 
   return (
-    <div ref={containerRef} style={{ position: "relative"}}>
-    
+    <div ref={containerRef} style={{ position: "relative" }}>
+
 
       {sortedMessages.map((m) => {
         const id = m._id || m.tempId;
         const isSent = m.sender === currentUser;
-        const isPinned=pinnedMessageIds.has(String(m._id));
+        const isPinned = pinnedMessageIds.has(String(m._id));
         // const isPin = m.pin;
 
         const isDeletedForUser = m.deletedFor?.includes(currentUser);
@@ -474,11 +476,11 @@ const unifiedTouchEnd = (e, msg) => {
         const isSelected = selectedMessages.includes(id);
 
         const bubbleStyle = {
-          background: isSent?"var(--sent-message-bubble-bg)":"var(--received-message-bubble-bg)",
-          color:isSent?"var(--sent-message-bubble-text)":"var(--received-message-bubble-text)",
-          boxShadow:isSent?"var(--sent-message-bubble-shadow)":"var(--received-message-bubble-shadow)",
-          border:isSent?"var(--sent-message-bubble-border)":"var(--received-message-bubble-border)",
-          borderRadius:isSent?"var(--sent-message-bubble-radius)":"var(--received-message-bubble-radius)",
+          background: isSent ? "var(--sent-message-bubble-bg)" : "var(--received-message-bubble-bg)",
+          color: isSent ? "var(--sent-message-bubble-text)" : "var(--received-message-bubble-text)",
+          boxShadow: isSent ? "var(--sent-message-bubble-shadow)" : "var(--received-message-bubble-shadow)",
+          border: isSent ? "var(--sent-message-bubble-border)" : "var(--received-message-bubble-border)",
+          borderRadius: isSent ? "var(--sent-message-bubble-radius)" : "var(--received-message-bubble-radius)",
 
         };
 
@@ -496,7 +498,7 @@ const unifiedTouchEnd = (e, msg) => {
                     padding: "4px 10px",
                     borderRadius: "12px",
                     fontSize: "0.85rem",
-                    color:"var(--DateLabel-text)",
+                    color: "var(--DateLabel-text)",
                     userSelect: "none"
                   }}
                 >
@@ -508,7 +510,7 @@ const unifiedTouchEnd = (e, msg) => {
             <div
               className={`d-flex flex-column ${isSent ? "align-items-end" : "align-items-start"
                 }`}
-                style={{background:`${isSelected?"var(--selected-message-color)":""}`}}
+              style={{ background: `${isSelected ? "var(--selected-message-color)" : ""}` }}
             >
               {/* MESSAGE BUBBLE */}
               <div
@@ -534,12 +536,23 @@ const unifiedTouchEnd = (e, msg) => {
                 {m.replyTo && (
                   <div
                     className="border-start ps-1 my-1"
-                    style={{ fontSize: "0.8rem", color: "#555",userSelect: "none" }}
-                    onClick={()=>replyToscroll(m.replyTo)}
+                    style={{ fontSize: "0.8rem", color: "#555", userSelect: "none" }}
+                    onClick={() => replyToscroll(m.replyTo)}
                   >
                     {m.replyTo.text || "previous message"}
                   </div>
                 )}
+
+                {m.isForwarded && (
+                  <div
+                    className="border-start ps-1 my-1"
+                    style={{ fontSize: "0.8rem", color: "#555", userSelect: "none" }}
+                    
+                  >
+                  <RiShareForwardLine />  forwarded
+                  </div>
+                )}
+
 
                 {/* 🟣 Swipe Arrow (WhatsApp-style) */}
                 <div
@@ -573,7 +586,7 @@ const unifiedTouchEnd = (e, msg) => {
                   className="d-flex align-items-center gap-2 mt-1"
                   style={{ fontSize: "0.75rem", color: "#666" }}
                 >
-                  {isPinned && <BsPinAngleFill/>}
+                  {isPinned && <BsPinAngleFill />}
                   <div style={{ userSelect: "none" }}>
                     {new Date(m.timestamp).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -620,7 +633,8 @@ const unifiedTouchEnd = (e, msg) => {
 
 
       )}
-  {/* {actionheader &&<div className="overlay" onClick={(e) => e.stopPropagation()} ></div>} */}
+  
+      {/* {actionheader &&<div className="overlay" onClick={(e) => e.stopPropagation()} ></div>} */}
     </div>
   );
 };

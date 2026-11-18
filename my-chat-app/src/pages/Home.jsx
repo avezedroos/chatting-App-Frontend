@@ -8,26 +8,40 @@ import { useDispatch, useSelector } from "react-redux";
 import socketService from "../services/socketService";
 import setupSocketEvents from "../services/socketEventsListener";
 import ConnectionsList from "../components/ConnectionsList";
-import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
+// import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
 import MessageInput from "../components/MessageInput";
 import HeaderSwitcher from "../components/Headers/HeaderSwitcher";
 import PulseModal from "../modals/PulseModal";
 import PinMessageModal from "../modals/PinMessageModal";
+import BlockUserUI from "../modals/BlockUserUI";
+import ForwardMessageModal from "../modals/ForwardMessageModal";
+import EditMessageUI from "../modals/EditMessageUI";
 
 export default function Home() {
   
   //redux state
   const { username } = useSelector((state) => state.user);
   const selectedConnection = useSelector((state) => state.connections.selectedConnection);
-  const PulseModalData = useSelector((state) => state.ui.PulseModal);
+  // const PulseModalData = useSelector((state) => state.ui.PulseModal);
   //local State
   const [connectionsModalOpen, setConnectionsModalOpen] = useState(false);
+  const { blockedUsers } = useSelector((state) => state.userSettings.privacy);
+  const forwardMessages = useSelector((state) => state.ui.forwardMessages);
 
   // useWhyRender("Home",null, { connectionsModalOpen, selectedConnection, username });
   const navigate = useNavigate(); // for navigation
   const dispatch = useDispatch(); // to dispatch actions if needed
 
 
+
+const isBlocked = Boolean(
+  selectedConnection?.userId &&
+  blockedUsers?.some(
+    (user) =>
+      user.id?.toString() === selectedConnection.userId.toString()
+  )
+);
+console.log("isBlocked",isBlocked)
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -75,12 +89,14 @@ export default function Home() {
 
       <main className={`W-chat-area Background-image ${!selectedConnection ? "W-hide-mobile" : ""}`}>
         {selectedConnection ? (
+          
           <>
           <HeaderSwitcher where="chatBox"/>
         {selectedConnection?.pin?.length>0 && <PinMessageModal data = {selectedConnection?.pin} otherUser ={selectedConnection.username}/>}
           <ChatBox/>
           
-          <MessageInput />
+          {isBlocked?<BlockUserUI/>:<MessageInput />}
+         
         
           
         </>
@@ -93,7 +109,7 @@ export default function Home() {
         )}
       </main>
       {connectionsModalOpen && <InviteFriend onClose={() => stateUpdateFunction(null, "connectionsModal")} />}
-
+        {forwardMessages.length > 0 && <ForwardMessageModal/>}
     </div>
   );
 }

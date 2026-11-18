@@ -102,7 +102,7 @@ const MessageActionModal = ({ position, direction, selectedMessages, closeModal 
         flexDirection: "column",
         gap: "14px",
         boxShadow: "0 4px 18px rgba(0,0,0,0.25)",
-        zIndex: 1000,
+        zIndex: 100,
       }}
     >
       {filteredActions.map((a, i) => (

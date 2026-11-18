@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../redux/features/userSlice";
 import { setConnections } from "../redux/features/connectionsSlice";
 import { registerAndroidPushNotifications } from "../utils/pushNotifications";
+import { hydrateUserSettings } from "../redux/features/userSettingsSlice";
 
 const Login = () => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -49,6 +50,8 @@ const Login = () => {
       // Redux
       dispatch(setUser({ isAuthenticated: true, userdata }));
       dispatch(setConnections(userdata.connections || []));
+      // console.log("userdata at login page ",userdata)
+       dispatch(hydrateUserSettings(userdata.settings))
 
       // Clear invite token AFTER successful registration
       if (!isLogin && inviteToken) {

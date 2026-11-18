@@ -26,7 +26,9 @@ const initialState = {
     title: "",
     message: "",
   },
-  scrollId:null,
+  scrollId: null,
+  forwardMessages: [],
+  selectedConnectionsForforwardMessage:[]
 };
 
 const uiSlice = createSlice({
@@ -104,8 +106,8 @@ const uiSlice = createSlice({
       state.isScreenVisible = action.payload;
     },
 
-    setscrollId: (state,action)=>{
-      state.scrollId= action.payload;
+    setscrollId: (state, action) => {
+      state.scrollId = action.payload;
     },
     // -----------------------------
     // 🟢 Selected message for modals
@@ -146,11 +148,50 @@ const uiSlice = createSlice({
           show: false,
           type: "", // error | success | info | warning
           title: "",
-          message: "",};
+          message: "",
+        };
         return;
       }
       state.PulseModal = { ...state.PulseModal, ...action.payload };
-    }
+    },
+
+    // -----------------------------
+    // 🟢 update Forward Messages
+    // -----------------------------
+
+    updateForwardMessages: (state, action) => {
+      state.forwardMessages = action.payload;
+    },
+
+    clearForwardMessages: (state) => {
+      state.forwardMessages = [];
+    },
+
+  
+
+    toggleForwardConnection: (state, action) => {
+      const { userId, username } = action.payload;
+
+      const exists = state.selectedConnectionsForforwardMessage.some(
+        (user) => user.userId?.toString() === userId?.toString()
+      );
+
+      if (exists) {
+        state.selectedConnectionsForforwardMessage = state.selectedConnectionsForforwardMessage.filter(
+          (user) => user.userId?.toString() !== userId?.toString()
+        );
+      } else {
+        state.selectedConnectionsForforwardMessage.push({ userId, username });
+      }
+    },
+
+    clearForwardMode: (state) => {
+      state.selectedConnectionsForforwardMessage = [];
+      state.forwardMessages = [];
+      state.chatBoxSelectionMode = false;
+      state.selectedMessage = [];
+    },
+
 
   },
 });
@@ -170,6 +211,10 @@ export const {
   setSelectionMode,
   setPulseModal,
   setscrollId,
+  updateForwardMessages,
+  clearForwardMessages,
+  toggleForwardConnection,
+  clearForwardMode,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

@@ -9,6 +9,7 @@ import "../styles/Chatbox.css";
 import { useDispatch, useSelector } from "react-redux";
 import {setMessagesForUser, updateStatusByUsers } from "../redux/features/messagesSlice";
 import PulseModal from "../modals/PulseModal";
+import EditMessageUI from "../modals/EditMessageUI";
 
 
 const ChatBox = () => {
@@ -21,6 +22,7 @@ const ChatBox = () => {
 
   // Redux state
   const { username } = useSelector((state) => state.user);
+  const { edit } = useSelector((state) => state.ui);
   const otherUser = useSelector((state) => state.connections.selectedConnection?.username || state.connections.selectedConnection?.name);
   usePageVisibility();
 
@@ -81,6 +83,7 @@ const ChatBox = () => {
           <MessageList />
         </div>
       </div> 
+      {edit && < EditMessageUI message={edit}/> }   
         <PulseModal/>
     </div>
   );

@@ -11,12 +11,12 @@ import { BsPinAngleFill } from "react-icons/bs";
 import { CgMoreVertical } from "react-icons/cg";
 import { removeBlockedUser, updateBlockUser } from "../../redux/features/userSettingsSlice";
 import { api } from "../../services/api";
+import { clearSelectedChats } from "../../redux/utils/clearChatThunk";
 
 
 
 export default function SelectionHeader({
   onArchive,
-  onClearChat,
   onDeleteChat,
   onReportUser,
   onAutoDelete,
@@ -25,6 +25,7 @@ export default function SelectionHeader({
   const { selectedConnections } = useSelector((state) => state.ui);
   const { pinnedConnections } = useSelector((state) => state.userSettings.connection);
   const { blockedUsers } = useSelector((state) => state.userSettings.privacy);
+  const { connections } = useSelector((state) => state.connections);
 
   const [isPinnedMode, setIsPinnedMode] = useState(false);
   const [blockMode, setBlockMode] = useState(true);
@@ -70,6 +71,13 @@ export default function SelectionHeader({
       }
 
     }
+  }
+
+  const onClearChat = async ()=>{
+    console.log("onClearChat is running")
+   
+     const result = await dispatch(
+      clearSelectedChats(selectedConnections))
   }
 
   // console.log(blockedUsers, selectedConnections, blockMode)

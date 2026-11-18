@@ -24,7 +24,7 @@ const Xposition = direction === "left"? position.left +20:"-10px"
         display: "flex",
         gap: "8px",
         boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-        zIndex: 1000,
+        zIndex: 100,
       }}
     >
       {emojis.map((emoji, index) => (

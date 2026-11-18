@@ -138,12 +138,12 @@ export default function ConnectionsList() {
 
             <div className="W-contact-meta">
               <div className="W-contact-name">{c.username}</div>
-              <div className="W-contact-last">{c.lastMessage.message || ""}</div>
+              <div className="W-contact-last">{c.lastMessage?.message || ""}</div>
             </div>
           </div>
 
           <div className="W-contact-right">
-            <div className="W-contact-time">{formatTimestamp(c.lastMessage.time)}</div>
+            <div className="W-contact-time">{formatTimestamp(c.lastMessage?.time)}</div>
             {c.unread > 0 && <div className="W-unread">{c.unread}</div>}
             {pinnedConnections.includes(c.userId) && <div className="W-pinned"><BsPinAngleFill/></div>}
           </div>

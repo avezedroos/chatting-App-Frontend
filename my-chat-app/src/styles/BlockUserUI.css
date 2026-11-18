@@ -1,0 +1,70 @@
+
+.blockUser-overlay {
+ position: sticky;
+  bottom: 0;
+  left: 0;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.blockUser-modal {
+  
+  width: 100%;
+  /* min-height: 190px; */
+  padding: 25px 12%;
+  background: #0b1013;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  pointer-events: auto;
+  height: 20px;
+}
+
+.blockUser-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.blockUser-action:hover {
+  opacity: 0.75;
+}
+
+.blockUser-action i {
+  font-size: 30px;
+}
+
+.blockUser-clear {
+  color: #ff526b;
+}
+
+.blockUser-unblock {
+  color: #25d366;
+}
+
+@media (max-width: 480px) {
+  .blockUser-modal {
+    padding: 20px 7%;
+    gap: 10px;
+    /* min-height: 150px; */
+  }
+
+  .blockUser-action {
+    font-size: 17px;
+    gap: 9px;
+  }
+
+  .blockUser-action i {
+    font-size: 24px;
+  }
+}

@@ -1,21 +1,23 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { resetUI, setSelectedMessage, setSelectionMode } from "../../redux/features/uiSlice";
+import { resetUI, setSelectedMessage, setSelectionMode, updateForwardMessages } from "../../redux/features/uiSlice";
 import { copyMessages } from "../../utils/copyMessages";
 import { selectMessagesByUser } from "../../redux/features/messagesSelectors";
 import { getMessageById } from "../../utils/minifunctions";
 import { FiTrash2 } from "react-icons/fi";
 import { FaRegCopy } from "react-icons/fa";
-import { BsPinAngle, } from "react-icons/bs";
+import { BsPinAngle, BsReply, } from "react-icons/bs";
 import { CgMoreVertical } from "react-icons/cg";
 import { pinMessage, unpinMessage } from "../../redux/features/connectionsSlice";
 import { selectPinnedMessageIds } from "../../redux/features/connectionSelectors";
-import { RiUnpinLine } from "react-icons/ri";
+import { RiReplyLine, RiShareForwardLine, RiUnpinLine } from "react-icons/ri";
 import socketService from "../../services/socketService";
+import { Dropdown } from "react-bootstrap";
+import { prepareForwardMessages } from "../../utils/prepareForwardMessages";
 
 const ActionHeader = ({
   onDelete = () => { },
-  onMore = () => { },
+  // onForward =() =>{ },
 }) => {
   const dispatch = useDispatch();
 
@@ -101,6 +103,19 @@ const ActionHeader = ({
     dispatch(resetUI());
   }
 
+
+
+  const onForward = () => {
+  const forwardMessages = prepareForwardMessages(
+    selectedMessages,
+    otherUser
+  );
+  console.log("forwardMessages",forwardMessages)
+  if (forwardMessages.length === 0) return;
+  dispatch(updateForwardMessages(forwardMessages));
+  // dispatch(selectConnection(null));
+};
+
   return (
     <div
       className="d-flex align-items-center w-100 chat-action-header"
@@ -130,7 +145,7 @@ const ActionHeader = ({
         fontSize: "20px",
         color: "var(--primary-color-dark)",
       }}>
-        {selectedMessageIds?.length} selected
+        {selectedMessageIds?.length} 
       </span>
 
       {/* RIGHT SIDE ICONS */}
@@ -138,6 +153,18 @@ const ActionHeader = ({
         className="ms-auto d-flex align-items-center px-3 py-0 icon-groups"
 
       >
+
+        {/* reply button */}
+        <div
+          className="btn p-0"
+          onClick={() => onReply()}
+          style={{ fontSize: "25px", }}
+          title="Reply"
+        >
+          <RiReplyLine/>
+
+        </div>
+
         {/* COPY BUTTON */}
         <div
           className="btn p-0"
@@ -148,15 +175,16 @@ const ActionHeader = ({
           <  FaRegCopy />
         </div>
 
-        {/* PIN BUTTON */}
-        {selectedMessageIds?.length === 1 && <div
+
+
+         {/* {selectedMessageIds?.length === 1 && <div
           className="btn p-0"
           onClick={onPin}
           style={{ fontSize: "24px" }}
           title="Pin"
         >
           {isPin ? <RiUnpinLine /> : < BsPinAngle />}
-        </div>}
+        </div>} */}
 
         {/* DELETE BUTTON */}
         <div
@@ -168,16 +196,48 @@ const ActionHeader = ({
           <FiTrash2 />
         </div>
 
-        {/* MORE OPTIONS */}
-        <div
-          className="btn p-0 me-2"
-          onClick={onMore}
-          style={{ fontSize: "20px", }}
-          title="More"
+        {/* Forward message */}
+        <div className=" p-0 btn"
+          onClick={onForward}
+          style={{ fontSize: "25px", }}
+          title="Forward"
         >
-          <CgMoreVertical />
+<RiShareForwardLine />
 
         </div>
+
+        {/* MORE OPTIONS */}
+        {/* 3-Dots Dropdown */}
+       <Dropdown align="end">
+          <Dropdown.Toggle
+            as="button"
+            variant="light"
+            className="selection-action-btn no-caret"
+            style={{ fontSize: "20px" }}
+          >
+            <CgMoreVertical />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu className="selection-dropdown header-dropdown" style={{ background: 'var(--invite-modal-bg)' }}>
+
+
+         {selectedMessageIds?.length === 1 &&   <Dropdown.Item  onClick={onPin}>
+              {isPin ? "UnPin" : "Pin" }
+            </Dropdown.Item>}
+
+            {/* <Dropdown.Divider /> */}
+
+            <Dropdown.Item >
+              report
+            </Dropdown.Item>
+
+            {/* <Dropdown.Divider />
+            <Dropdown.Item >
+              Report User
+            </Dropdown.Item> */}
+          </Dropdown.Menu>
+        </Dropdown>
+        
       </div>
     </div>
   );

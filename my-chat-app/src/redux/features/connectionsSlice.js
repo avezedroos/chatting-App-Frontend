@@ -158,47 +158,70 @@ const connectionsSlice = createSlice({
     },
 
     pinMessage: (state, action) => {
-  const { username, msgId, type, timestamp } = action.payload;
-  console.log(action.payload)
+      const { username, msgId, type, timestamp } = action.payload;
+      console.log(action.payload)
 
-  // 1. Update main connections array
-  const connection = state.connections.find(
-    (c) => c.username === username
-  );
+      // 1. Update main connections array
+      const connection = state.connections.find(
+        (c) => c.username === username
+      );
 
-  addPinToConnection(connection, {
-    msgId,
-    type,
-    timestamp,
-  });
+      addPinToConnection(connection, {
+        msgId,
+        type,
+        timestamp,
+      });
 
-  // 2. Update selected connection if it matches
-  if (state.selectedConnection?.username === username) {
-    addPinToConnection(state.selectedConnection, {
-      msgId,
-      type,
-      timestamp,
-    });
-  }
+      // 2. Update selected connection if it matches
+      if (state.selectedConnection?.username === username) {
+        addPinToConnection(state.selectedConnection, {
+          msgId,
+          type,
+          timestamp,
+        });
+      }
 
-  
-},
 
-unpinMessage: (state, action) => {
-  const { username, msgId } = action.payload;
+    },
 
-  // 1. Update main connections array
-  const connection = state.connections.find(
-    (c) => c.username === username
-  );
+    unpinMessage: (state, action) => {
+      const { username, msgId } = action.payload;
 
-  removePinFromConnection(connection, msgId);
+      // 1. Update main connections array
+      const connection = state.connections.find(
+        (c) => c.username === username
+      );
 
-  // 2. Update selected connection if it matches
-  if (state.selectedConnection?.username === username) {
-    removePinFromConnection(state.selectedConnection, msgId);
-  }
-},
+      removePinFromConnection(connection, msgId);
+
+      // 2. Update selected connection if it matches
+      if (state.selectedConnection?.username === username) {
+        removePinFromConnection(state.selectedConnection, msgId);
+      }
+    },
+
+    removeLastMessage: (state, action) => {
+      const { usernames } = action.payload;
+      console.log(action.payload)
+      state.connections.forEach((conn) => {
+        if (usernames.includes(conn.username)) {
+          conn.lastMessage.message = "";
+          conn.lastMessage.msgId = null;
+          conn.lastMessage.time = null;
+        }
+      });
+
+      // Update selected connection
+      if (
+        state.selectedConnection &&
+        usernames.includes(state.selectedConnection.username)
+      ) {
+        state.selectedConnection.message = "";
+        state.selectedConnection.msgId = null;
+        state.selectedConnection.time = null;
+
+      }
+    },
   },
 });
 
@@ -212,7 +235,8 @@ export const {
   updateOnlineStatusConnection,
   updateNotes,
   pinMessage,
-  unpinMessage
+  unpinMessage,
+  removeLastMessage,
 } = connectionsSlice.actions;
 
 export default connectionsSlice.reducer;

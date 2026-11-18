@@ -7,7 +7,7 @@ import { useWhyRender } from "../hooks/useWhyDidYouUpdate";
 import { updateLastMessage } from "../redux/features/connectionsSlice";
 
 const MessageInput = () => {
-// console.log("Rendering MessageInput");
+  // console.log("Rendering MessageInput");
   // Redux
   const dispatch = useDispatch();
 
@@ -36,13 +36,13 @@ const MessageInput = () => {
       if (unsentQueueRef.current.length > 0) {
         unsentQueueRef.current.forEach((payload) => {
           socket.emit("send-message", payload, (ack) => {
-            console.log("ack",ack);
+            console.log("ack", ack);
             if (ack?.ok && ack.serverId) {
               dispatch(replaceTempMessage({ userId: otherUser, tempId, newMessage: ack.data }));
-            }else if(!ack?.status){
-          console.log("i am running")
-         dispatch(removeTempMessage({userId: otherUser, tempId}));
-        }
+            } else if (!ack?.status) {
+              console.log("i am running")
+              dispatch(removeTempMessage({ userId: otherUser, tempId }));
+            }
           });
         });
 
@@ -67,7 +67,7 @@ const MessageInput = () => {
       text: text.trim(),
       timestamp: null,
       status: "pending",
-      replyTo: isReplying? isReplying : null,
+      replyTo: isReplying ? isReplying : null,
     };
     dispatch(addTempMessage({ userId: otherUser, message: { ...payload, pending: true, delivered: false } }));
 
@@ -85,16 +85,16 @@ const MessageInput = () => {
             msgId: ack.data._id,
             match: false,
           }));
-        } 
-        else if(!ack?.status){
+        }
+        else if (!ack?.status) {
           console.log("i am running")
-         dispatch(removeTempMessage({userId: otherUser, tempId}));
-        dispatch(setPulseModal({
-                 show: true,
-                 type: "warning",
-                 title: "sending message",
-                 message: ack?.error,
-               }));
+          dispatch(removeTempMessage({ userId: otherUser, tempId }));
+          dispatch(setPulseModal({
+            show: true,
+            type: "warning",
+            title: "sending message",
+            message: ack?.error,
+          }));
         } else {
           unsentQueueRef.current.push(payload);
         }
@@ -113,26 +113,30 @@ const MessageInput = () => {
       newText: newText
     };
     const ReducerPayload = {
-       username: otherUser,
-        messageId: messageId,
-        newText: newText,
-        isEdited: true,
-        editedAt: new Date().toISOString(),
+      username: otherUser,
+      messageId: messageId,
+      newText: newText,
+      isEdited: true,
+      editedAt: new Date().toISOString(),
     }
 
     if (socketService.isConnected()) {
-      socketService.emit("edit-Message", payload );
+      socketService.emit("edit-Message", payload);
       dispatch(editMessage(ReducerPayload));
       dispatch(updateLastMessage({
-      username: otherUser,
-      message: newText,
-      time: new Date().toISOString(),
-      msgId: messageId,
-      match: true,
-    }));
-    
+        username: otherUser,
+        message: newText,
+        time: new Date().toISOString(),
+        msgId: messageId,
+        match: true,
+      }));
+
+// const input = document.getElementById("chat-input-box");
+// if (input) {
+//   input.style.height = "36px";
+// }
       dispatch(cancelEdit());
-      
+
     }
   }
 
@@ -150,7 +154,7 @@ const MessageInput = () => {
       const input = document.getElementById("chat-input-box");
       if (input) {
         input.focus();
-
+        
         if (edit) {
           console.log("Setting edit text:", edit);
           setText(edit.text);
@@ -158,6 +162,15 @@ const MessageInput = () => {
       }
     }
   }, [isReplying, edit]);
+
+  useEffect(() => {
+  const input = document.getElementById("chat-input-box");
+
+  if (input) {
+    input.style.height = "auto";
+    input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
+  }
+}, [text]);
 
   const handleChange = (e) => {
     setText(e.target.value);
@@ -178,7 +191,9 @@ const MessageInput = () => {
   }
 
   const send = () => {
+
     if (!text.trim()) return;
+
     if (edit) {
       handleEdit({ messageId: edit._id, newText: text.trim() });
     } else {
@@ -186,7 +201,10 @@ const MessageInput = () => {
       handleSend(text.trim(), isReplying?.id || null); // ✔ send reply reference
     }
     setText("");
-
+const input = document.getElementById("chat-input-box");
+if (input) {
+  input.style.height = "36px";
+}
     // ✔ stop typing indicator immediately
     typingRef.current = false;
     handleTyping(false);
@@ -198,97 +216,92 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="W-input-area" style={{marginBottom:`${isReplying?.id ? '0px' : '0px'}`}}>
-    <div className="h-100" >
+    <div className="W-input-area" style={{ marginBottom: `${isReplying?.id ? '0px' : '0px'}` }}>
+      <div className="h-100" >
 
-      {/* ⭐ REPLY PREVIEW BOX */}
-      {isReplying?.id && (
-        <div
-          style={{
-            background: "var(--primary-highlight-color)",
-            padding: "6px 10px",
-            borderLeft: "3px solid #8d49ff",
-            borderRadius: 6,
-            marginBottom: 6,
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            <small style={{ opacity: 0.6 }}>Replying to:</small>
-            <div style={{ fontWeight: 600 }}>{isReplying?.text}</div>
-          </div>
-
-          {/* ❌ Close reply */}
-          <button
-            onClick={() => {
-              dispatch(stopReplying());
-            }}
+        {/* ⭐ REPLY PREVIEW BOX */}
+        {isReplying?.id && (
+          <div
             style={{
-              background: "transparent",
+              background: "var(--primary-highlight-color)",
+              padding: "6px 10px",
+              borderLeft: "3px solid #8d49ff",
+              borderRadius: 6,
+              marginBottom: 6,
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>
+              <small style={{ opacity: 0.6 }}>Replying to:</small>
+              <div style={{ fontWeight: 600 }}>{isReplying?.text}</div>
+            </div>
+
+            {/* ❌ Close reply */}
+            <button
+              onClick={() => {
+                dispatch(stopReplying());
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                fontSize: 18,
+                cursor: "pointer",
+              }}
+            >
+              ✖
+            </button>
+          </div>
+        )}
+
+        {/* ⭐ INPUT ROW */}
+        <div style={{ display: "flex", padding: "0px",alignItems:'end' }}>
+          <textarea
+            id="chat-input-box"
+            // type="text"
+            placeholder="Type a message..."
+            value={text}
+            onChange={(e) => {
+              handleChange(e);
+              e.target.style.height = "auto";
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+            }}
+            className="m-1 chat-input-box "
+            rows={1}
+            onKeyDown={(e) => e.key === "Enter" && send()}
+          />
+
+          <button
+            onClick={send}
+            className="m-1"
+            style={{
+              padding: "6px 14px",
               border: "none",
-              fontSize: 18,
+              borderRadius: "30px",
+              display: "flex", alignItems: "center",
+              cursor: "pointer",
+              // height:'35px'
+            }}
+          >
+            Send
+          </button>
+
+          {edit && <button
+            onClick={cancelEditfunc}
+            className="m-1"
+            style={{
+              padding: "6px 14px",
+              border: "none",
+              borderRadius: "20px",
+              display: "flex", alignItems: "center",
               cursor: "pointer",
             }}
           >
-            ✖
+            X
           </button>
+          }
         </div>
-      )}
-
-      {/* ⭐ INPUT ROW */}
-      <div style={{ display: "flex", padding: "0px", }}>
-        <input
-          id="chat-input-box"
-          type="text"
-          placeholder="Type a message..."
-          value={text}
-          onChange={handleChange}
-          className="m-1"
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          style={{
-            flex: 1,
-            minWidth: 0,          // <-- prevents overflow
-            padding: "6px 12px",
-            borderRadius: "30px",
-            border: "1px solid #ccc",
-           background:"var(--primary-highlight-color)",
-            color:"var(--primary-text-color)",
-            outline: "none",
-            fontSize: 16,
-          }}
-        />
-
-        <button
-          onClick={send}
-          className="m-1"
-          style={{
-            padding: "6px 14px",
-            border: "none",
-            borderRadius: "30px",
-            display: "flex", alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          Send
-        </button>
-
-        {edit && <button
-          onClick={cancelEditfunc}
-          className="m-1"
-          style={{
-            padding: "6px 14px",
-            border: "none",
-            borderRadius: "20px",
-            display: "flex", alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          X
-        </button>
-        }
       </div>
-    </div>
     </div>
   );
 };

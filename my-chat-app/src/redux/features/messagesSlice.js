@@ -251,6 +251,7 @@ removeTempMessage: (state, action) => {
     // 🔟 Clear chat (optional)
     // --------------------------------------------------------
     clearMessagesForUser: (state, action) => {
+      console.log("clearMessagesForUser")
       const { userId } = action.payload;
       delete state.messagesByUser[userId];
     },
